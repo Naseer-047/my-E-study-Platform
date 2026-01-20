@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Login | Academia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>body { font-family: 'Inter', sans-serif; }</style>
+</head>
+<body class="bg-gray-100 h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded shadow-sm w-96 border border-gray-200">
+        <h1 class="text-xl font-semibold mb-6 text-gray-800">Admin Access</h1>
+        <form id="loginForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Secret Key</label>
+                <input type="password" id="password" class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-black" placeholder="••••••••">
+            </div>
+            <button type="submit" class="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition">Enter Dashboard</button>
+        </form>
+        <p id="error" class="text-red-500 text-sm mt-4 hidden">Invalid credentials.</p>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const pass = document.getElementById('password').value;
+            // Mock Auth
+            if (pass === 'admin123') {
+                localStorage.setItem('admin_token', 'Bearer admin-secret-123');
+                window.location.href = 'index.html';
+            } else {
+                document.getElementById('error').classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academia | Learn once. Build forever.</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        classic: {
+                            cream: '#F9F8F4',
+                            charcoal: '#1A202C',
+                            navy: '#2C3E50',
+                            gold: '#C5A059',
+                            softgray: '#E2E8F0'
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['Playfair Display', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #F9F8F4; color: #1A202C; }
+        .hover-card { transition: all 0.3s ease; }
+        .hover-card:hover { transform: translateY(-4px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
+    </style>
+</head>
+<body class="font-sans antialiased flex flex-col min-h-screen">
+
+    <!-- Navbar -->
+    <nav class="w-full py-6 px-8 flex justify-between items-center border-b border-gray-200 bg-[#F9F8F4]/80 backdrop-blur-md sticky top-0 z-50">
+        <a href="index.html" class="text-2xl font-serif font-semibold tracking-tight text-classic-charcoal flex items-center gap-2">
+            <i data-lucide="book-open" class="w-6 h-6"></i>
+            Academia
+        </a>
+        <div class="hidden md:flex gap-8 text-sm font-medium text-gray-600">
+            <a href="index.html" class="hover:text-classic-navy transition-colors">Home</a>
+            <a href="frontend/courses.html" class="hover:text-classic-navy transition-colors">Courses</a>
+            <a href="#" class="hover:text-classic-navy transition-colors">Mentorship</a>
+        </div>
+        <div>
+            <a href="admin/login.html" class="text-sm font-medium text-gray-500 hover:text-classic-navy transition-colors">Admin Login</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <main class="flex-grow">
+        <section class="max-w-7xl mx-auto px-8 pt-24 pb-20 text-center">
+            <span class="inline-block py-1 px-3 rounded-full bg-gray-100 text-xs font-semibold tracking-wider text-gray-600 mb-6 uppercase">Internal Learning Platform</span>
+            <h1 class="text-5xl md:text-7xl font-serif font-medium text-classic-charcoal mb-6 leading-tight">
+                Learn once.<br>
+                <span class="text-gray-400 italic">Build forever.</span>
+            </h1>
+            <p class="text-lg md:text-xl text-gray-500 max-w-2xl mx-auto mb-10 font-light leading-relaxed">
+                A distraction-free environment designed for deep work and mastery. 
+                Focus on the concepts that matter.
+            </p>
+            <div class="flex justify-center gap-4">
+                <a href="frontend/courses.html" class="bg-classic-charcoal text-white px-8 py-3 rounded-md font-medium hover:bg-black transition-colors shadow-lg shadow-gray-200">
+                    Explore Courses
+                </a>
+                <a href="#categories" class="px-8 py-3 rounded-md font-medium text-gray-600 hover:bg-gray-100 transition-colors">
+                    View Tracks
+                </a>
+            </div>
+        </section>
+
+        <!-- Categories -->
+        <section id="categories" class="max-w-7xl mx-auto px-8 py-20 border-t border-gray-200">
+            <div class="flex justify-between items-end mb-12">
+                <div>
+                    <h2 class="text-3xl font-serif text-classic-charcoal mb-2">Curated Tracks</h2>
+                    <p class="text-gray-500 font-light">Select a discipline to begin your journey.</p>
+                </div>
+                <a href="frontend/courses.html" class="text-sm font-medium text-classic-navy hover:underline">View all libraries →</a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <!-- Category 1 -->
+                <div class="bg-white p-8 rounded-xl border border-gray-100 hover-card cursor-pointer group">
+                    <div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mb-6 group-hover:bg-blue-100 transition-colors">
+                        <i data-lucide="code-2" class="text-blue-600"></i>
+                    </div>
+                    <h3 class="text-xl font-serif mb-2 text-gray-900">Web Development</h3>
+                    <p class="text-sm text-gray-500 leading-relaxed">Master the modern web stack. HTML, CSS, React, and Node.</p>
+                </div>
+
+                <!-- Category 2 -->
+                <div class="bg-white p-8 rounded-xl border border-gray-100 hover-card cursor-pointer group">
+                    <div class="w-12 h-12 bg-yellow-50 rounded-full flex items-center justify-center mb-6 group-hover:bg-yellow-100 transition-colors">
+                        <i data-lucide="terminal" class="text-yellow-600"></i>
+                    </div>
+                    <h3 class="text-xl font-serif mb-2 text-gray-900">Python & AI</h3>
+                    <p class="text-sm text-gray-500 leading-relaxed">Data science, automation, and machine learning fundamentals.</p>
+                </div>
+
+                <!-- Category 3 -->
+                <div class="bg-white p-8 rounded-xl border border-gray-100 hover-card cursor-pointer group">
+                    <div class="w-12 h-12 bg-purple-50 rounded-full flex items-center justify-center mb-6 group-hover:bg-purple-100 transition-colors">
+                        <i data-lucide="cpu" class="text-purple-600"></i>
+                    </div>
+                    <h3 class="text-xl font-serif mb-2 text-gray-900">Algorithms</h3>
+                    <p class="text-sm text-gray-500 leading-relaxed">Data structures and problem-solving patterns.</p>
+                </div>
+
+                <!-- Category 4 -->
+                <div class="bg-white p-8 rounded-xl border border-gray-100 hover-card cursor-pointer group">
+                    <div class="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center mb-6 group-hover:bg-green-100 transition-colors">
+                        <i data-lucide="wrench" class="text-green-600"></i>
+                    </div>
+                    <h3 class="text-xl font-serif mb-2 text-gray-900">DevOps & Tools</h3>
+                    <p class="text-sm text-gray-500 leading-relaxed">Git, Docker, Linux, and deployment strategies.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-200 py-12 bg-white">
+        <div class="max-w-7xl mx-auto px-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500">
+            <p>&copy; 2026 Academia Internal. All rights reserved.</p>
+            <div class="flex gap-6 mt-4 md:mt-0">
+                <a href="#" class="hover:text-classic-charcoal">Privacy</a>
+                <a href="#" class="hover:text-classic-charcoal">Terms</a>
+                <a href="#" class="hover:text-classic-charcoal">Support</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

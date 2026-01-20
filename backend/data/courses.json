@@ -1,0 +1,60 @@
+[
+  {
+    "id": "c1",
+    "title": "Full Stack Web Development",
+    "instructor": "Dr. Angela Yu",
+    "thumbnail": "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80",
+    "category": "Web Dev",
+    "description": "Master the art of web development with HTML, CSS, JS, and Node.",
+    "techStack": [
+      "HTML",
+      "CSS",
+      "JS",
+      "Node"
+    ],
+    "totalVideos": 2,
+    "videos": [
+      {
+        "id": "v1768919375380pjnx3",
+        "title": "Introduction to the Web",
+        "url": "https://www.youtube.com/embed/qz0aGYrrlhU",
+        "duration": "10:05"
+      },
+      {
+        "id": "v176891937538053b6p",
+        "title": "HTML Basics",
+        "url": "https://www.youtube.com/embed/qz0aGYrrlhU",
+        "duration": "15:20"
+      }
+    ]
+  },
+  {
+    "id": "c2",
+    "title": "Python for Data Science",
+    "instructor": "Jose Portilla",
+    "thumbnail": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&q=80",
+    "category": "Python",
+    "description": "Learn Python from scratch and jump into Data Science concepts.",
+    "techStack": [
+      "Python",
+      "Pandas",
+      "NumPy"
+    ],
+    "totalVideos": 30,
+    "videos": []
+  },
+  {
+    "id": "c3",
+    "title": "JavaScript: The Deep Dive",
+    "instructor": "Kyle Simpson",
+    "thumbnail": "https://images.unsplash.com/photo-1579468118864-1b9ea3c0db4a?auto=format&fit=crop&w=800&q=80",
+    "category": "JavaScript",
+    "description": "Understand the core mechanisms of JavaScript.",
+    "techStack": [
+      "JavaScript",
+      "ES6+"
+    ],
+    "totalVideos": 25,
+    "videos": []
+  }
+]

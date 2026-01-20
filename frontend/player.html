@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classroom | Academia</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        classic: {
+                            cream: '#F9F8F4',
+                            charcoal: '#1A202C',
+                            navy: '#2C3E50',
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['Playfair Display', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #1A202C; color: #F9F8F4; } /* Dark mode for cinema feel */
+        .sidebar-scroll::-webkit-scrollbar { width: 6px; }
+        .sidebar-scroll::-webkit-scrollbar-thumb { background: #4A5568; rounded: 4px; }
+        .active-video { background-color: #2D3748; border-left: 3px solid #C5A059; }
+    </style>
+</head>
+<body class="font-sans antialiased h-screen flex flex-col overflow-hidden">
+
+    <!-- Navbar (Dark) -->
+    <nav class="w-full h-16 px-6 flex justify-between items-center border-b border-gray-800 bg-[#1A202C] flex-shrink-0">
+        <a href="index.html" class="text-xl font-serif font-semibold tracking-tight text-white flex items-center gap-2">
+            <i data-lucide="book-open" class="w-5 h-5"></i>
+            Academia
+        </a>
+        <div class="flex items-center gap-4">
+            <a href="courses.html" class="text-sm text-gray-400 hover:text-white transition-colors">Back to Library</a>
+        </div>
+    </nav>
+
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Main Content (Video + Tabs) -->
+        <main class="flex-1 flex flex-col overflow-y-auto bg-black relative">
+            <!-- Video Player Container -->
+            <div class="w-full aspect-video bg-black flex items-center justify-center relative" id="video-container">
+                <iframe id="youtube-player" class="w-full h-full" src="" title="Video Player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <div id="placeholder" class="absolute inset-0 flex items-center justify-center text-gray-500">
+                    <p>Select a lesson to start watching</p>
+                </div>
+            </div>
+
+            <!-- Content Tabs -->
+            <div class="flex-1 bg-white text-gray-900 p-8">
+                <div class="max-w-4xl mx-auto">
+                    <h1 id="lesson-title" class="text-2xl font-serif font-semibold mb-4">Select a lesson</h1>
+                    
+                    <div class="border-b border-gray-200 mb-6">
+                        <nav class="-mb-px flex gap-8">
+                            <button class="border-b-2 border-classic-navy py-4 px-1 text-sm font-medium text-classic-navy" aria-current="page">Notes</button>
+                            <button class="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">Practice</button>
+                            <button class="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">Discussion</button>
+                        </nav>
+                    </div>
+
+                    <div class="prose max-w-none text-gray-600">
+                        <p>Notes for this lesson will appear here. Markdown content is supported.</p>
+                        <h3>Key Takeaways</h3>
+                        <ul>
+                            <li>Concept 1</li>
+                            <li>Concept 2</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Sidebar (Playlist) -->
+        <aside class="w-80 bg-[#1A202C] border-l border-gray-800 flex flex-col flex-shrink-0">
+            <div class="p-4 border-b border-gray-800">
+                <h2 id="course-title" class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Course Content</h2>
+                <div class="mt-2 w-full bg-gray-700 rounded-full h-1.5">
+                    <div class="bg-indigo-500 h-1.5 rounded-full" style="width: 45%"></div>
+                </div>
+                <p class="text-xs text-right text-gray-500 mt-1">45% Complete</p>
+            </div>
+            
+            <div id="playlist" class="flex-1 overflow-y-auto sidebar-scroll">
+                <!-- Items injected here -->
+            </div>
+        </aside>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/player.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>
