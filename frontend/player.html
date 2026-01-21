@@ -98,9 +98,9 @@
             </div>
 
             <!-- Content Deck -->
-            <div class="p-8 max-w-5xl mx-auto w-full">
+            <div class="p-4 md:p-8 max-w-5xl mx-auto w-full">
                 
-                <div class="flex justify-between items-start mb-8 pb-4 border-b border-white/5">
+                <div class="flex flex-col md:flex-row justify-between items-start mb-8 pb-4 border-b border-white/5 gap-4">
                     <div>
                         <h1 id="lesson-title" class="text-3xl font-display font-bold text-white mb-2">Welcome</h1>
                         <p class="text-gray-400 text-sm">Watch the video to begin.</p>
@@ -194,13 +194,22 @@
             if(tab === 'notes') {
                 notesContent.classList.remove('hidden');
                 discussionContent.classList.add('hidden');
-                btnNotes.className = "pb-3 border-b-2 border-neon-cyan text-white text-sm font-medium transition-all";
-                btnDisc.className = "pb-3 border-b-2 border-transparent text-gray-500 hover:text-white transition-colors text-sm font-medium transition-all";
+                
+                btnNotes.classList.add('border-neon-cyan', 'text-white');
+                btnNotes.classList.remove('border-transparent', 'text-gray-500');
+                
+                btnDisc.classList.add('border-transparent', 'text-gray-500');
+                btnDisc.classList.remove('border-neon-cyan', 'text-white');
             } else {
                 notesContent.classList.add('hidden');
                 discussionContent.classList.remove('hidden');
-                btnDisc.className = "pb-3 border-b-2 border-neon-cyan text-white text-sm font-medium transition-all";
-                btnNotes.className = "pb-3 border-b-2 border-transparent text-gray-500 hover:text-white transition-colors text-sm font-medium transition-all";
+                
+                btnDisc.classList.add('border-neon-cyan', 'text-white');
+                btnDisc.classList.remove('border-transparent', 'text-gray-500');
+                
+                btnNotes.classList.add('border-transparent', 'text-gray-500');
+                btnNotes.classList.remove('border-neon-cyan', 'text-white');
+                
                 loadComments();
             }
         }
@@ -261,21 +270,21 @@
         }
 
         // Catch video changes from player.js
-        const originalInitPlayer = window.initPlayer;
-        // Wait for player.js to finish setting currentVideoId
         const checkVideoTarget = setInterval(() => {
             const player = document.getElementById('youtube-player');
-            if(player && player.src) {
-                const url = new URL(player.src);
-                const vId = url.pathname.split('/').pop();
-                if(vId && vId !== currentVideoId) {
-                    currentVideoId = vId;
-                    if(!document.getElementById('discussion-content').classList.contains('hidden')) {
-                        loadComments();
+            if(player && player.src && player.src.startsWith('http')) {
+                try {
+                    const url = new URL(player.src);
+                    const vId = url.pathname.split('/').pop();
+                    if(vId && vId !== currentVideoId) {
+                        currentVideoId = vId;
+                        if(!document.getElementById('discussion-content').classList.contains('hidden')) {
+                            loadComments();
+                        }
                     }
-                }
+                } catch(e) { /* Invalid URL - likely placeholder */ }
             }
-        }, 1000);
+        }, 1500);
     </script>
 </body>
 </html>
