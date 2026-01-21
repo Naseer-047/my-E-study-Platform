@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hackathon Editor | Academia</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'], display: ['Space Grotesk', 'sans-serif'] },
+                    colors: {
+                        glass: { dark: 'rgba(10, 10, 20, 0.6)', border: 'rgba(255, 255, 255, 0.15)' },
+                        neon: { blue: '#4F46E5', purple: '#A855F7', cyan: '#06B6D4', green: '#10B981', red: '#EF4444' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background: #0f172a; color: white; min-h-screen; display: flex; flex-direction: column; }
+        .ambient-bg { position: fixed; inset: 0; z-index: -1; background: radial-gradient(circle at 10% 10%, rgba(16, 185, 129, 0.05), transparent 40%); }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-input {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        .glass-input:focus { border-color: #10B981; outline: none; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="ambient-bg"></div>
+
+    <div class="max-w-4xl mx-auto w-full">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors">
+                    <i data-lucide="arrow-left" class="w-5 h-5 text-gray-400"></i>
+                </a>
+                <div>
+                    <h1 class="text-2xl font-display font-bold text-white">Hackathon Editor</h1>
+                    <p class="text-sm text-gray-500">Manage upcoming competitions</p>
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="window.location.href='index.html'" class="px-4 py-2 rounded text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-colors">Discard</button>
+                <button onclick="document.querySelector('form').dispatchEvent(new Event('submit'))" class="px-6 py-2 rounded bg-neon-green hover:bg-neon-green/80 text-white text-sm font-bold shadow-lg shadow-neon-green/20 flex items-center gap-2">
+                    <i data-lucide="save" class="w-4 h-4"></i> Save Hackathon
+                </button>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <div class="glass-panel rounded-2xl p-6 md:p-8 relative overflow-hidden">
+             
+            <form id="hackathon-form" class="space-y-6">
+                <input type="hidden" id="hack-id">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-1">
+                        <label class="text-xs text-gray-500 uppercase font-bold tracking-wider">Title</label>
+                        <input type="text" id="title" class="w-full glass-input rounded-lg p-3 text-sm font-medium" placeholder="Ex: Lumina Hack 2026">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs text-gray-500 uppercase font-bold tracking-wider">Organizer</label>
+                        <input type="text" id="organizer" class="w-full glass-input rounded-lg p-3 text-sm" placeholder="Ex: Google Developers">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="space-y-1">
+                        <label class="text-xs text-gray-500 uppercase font-bold tracking-wider">Date</label>
+                        <input type="date" id="date" class="w-full glass-input rounded-lg p-3 text-sm">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs text-gray-500 uppercase font-bold tracking-wider">Prize Pool</label>
+                        <input type="text" id="prize" class="w-full glass-input rounded-lg p-3 text-sm" placeholder="Ex: $5000">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs text-gray-500 uppercase font-bold tracking-wider">Status</label>
+                        <select id="status" class="w-full glass-input rounded-lg p-3 text-sm bg-[#0f172a]">
+                            <option value="Upcoming">Upcoming</option>
+                            <option value="Registration Open">Registration Open</option>
+                            <option value="Ongoing">Ongoing</option>
+                            <option value="Ended">Ended</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                     <div class="space-y-1">
+                        <label class="text-xs text-gray-500 uppercase font-bold tracking-wider">Image URL</label>
+                        <input type="text" id="image" class="w-full glass-input rounded-lg p-3 text-sm" placeholder="https://...">
+                    </div>
+                     <div class="space-y-1">
+                        <label class="text-xs text-gray-500 uppercase font-bold tracking-wider">Registration Link</label>
+                        <input type="text" id="link" class="w-full glass-input rounded-lg p-3 text-sm" placeholder="https://...">
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-xs text-gray-500 uppercase font-bold tracking-wider">Description</label>
+                    <textarea id="description" rows="4" class="w-full glass-input rounded-lg p-3 text-sm" placeholder="Tell students what this hackathon is about..."></textarea>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 bg-black/80 z-50 flex flex-col items-center justify-center hidden backdrop-blur-sm">
+        <div class="w-10 h-10 border-4 border-neon-green border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p class="text-neon-green font-mono text-sm animate-pulse">Processing...</p>
+    </div>
+
+    <script src="../frontend/js/config.js"></script>
+    <script>
+        lucide.createIcons();
+
+        async function init() {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            if(id) {
+                document.getElementById('hack-id').value = id;
+                toggleLoading(true);
+                try {
+                    const res = await fetch(`${CONFIG.API_BASE_URL}/hackathons`);
+                    const all = await res.json();
+                    const hack = all.find(h => (h.id || h._id) === id);
+                    
+                    if(hack) {
+                        document.getElementById('title').value = hack.title || '';
+                        document.getElementById('organizer').value = hack.organizer || '';
+                        document.getElementById('date').value = hack.date ? hack.date.split('T')[0] : '';
+                        document.getElementById('prize').value = hack.prize || '';
+                        document.getElementById('status').value = hack.status || 'Upcoming';
+                        document.getElementById('image').value = hack.image || '';
+                        document.getElementById('link').value = hack.link || '';
+                        document.getElementById('description').value = hack.description || '';
+                    }
+                } catch(e) {}
+                finally { toggleLoading(false); }
+            }
+        }
+
+        function toggleLoading(show) { document.getElementById('loading-overlay').classList[show ? 'remove' : 'add']('hidden'); }
+
+        document.getElementById('hackathon-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            toggleLoading(true);
+
+            const id = document.getElementById('hack-id').value;
+            const method = id ? 'PUT' : 'POST';
+            const url = id ? `${CONFIG.API_BASE_URL}/hackathons/${id}` : `${CONFIG.API_BASE_URL}/hackathons`;
+
+            const payload = {
+                title: document.getElementById('title').value,
+                organizer: document.getElementById('organizer').value,
+                date: document.getElementById('date').value,
+                prize: document.getElementById('prize').value,
+                status: document.getElementById('status').value,
+                image: document.getElementById('image').value,
+                link: document.getElementById('link').value,
+                description: document.getElementById('description').value
+            };
+
+            let token = localStorage.getItem('adminToken') || '';
+            if(token.includes('Bearer ')) token = token.replace('Bearer ', '').trim();
+
+            try {
+                const res = await fetch(url, {
+                    method,
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if(res.ok) window.location.href = 'index.html';
+                else alert("Failed to save hackathon");
+            } catch(e) { alert("Error connecting to server"); }
+            finally { toggleLoading(false); }
+        });
+
+        init();
+    </script>
+</body>
+</html>

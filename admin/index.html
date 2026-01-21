@@ -74,6 +74,9 @@
             <button onclick="switchTab('courses')" class="nav-link w-full" id="btn-courses">
                 <i data-lucide="library" class="w-5 h-5"></i> Courses
             </button>
+            <button onclick="switchTab('hackathons')" class="nav-link w-full" id="btn-hackathons">
+                <i data-lucide="trophy" class="w-5 h-5"></i> Hackathons
+            </button>
             <button onclick="openBroadcastModal()" class="nav-link w-full text-neon-red/80 hover:text-neon-red">
                 <i data-lucide="radio" class="w-5 h-5"></i> Broadcast
             </button>
@@ -204,8 +207,31 @@
                     </table>
                 </div>
             </div>
-            
-        </div>
+            <!-- VIEW: HACKATHONS -->
+            <div id="view-hackathons" class="hidden space-y-6">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/5">
+                    <h3 class="text-white font-bold">Hackathon Management</h3>
+                    <button onclick="window.location.href='hackathon-editor.html'" class="w-full md:w-auto bg-neon-green hover:bg-neon-green/80 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-neon-green/20">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Create Hackathon
+                    </button>
+                </div>
+
+                <div class="glass-panel rounded-xl overflow-hidden overflow-x-auto">
+                    <table class="w-full text-sm min-w-[600px]">
+                        <thead>
+                            <tr class="text-gray-500 text-xs uppercase tracking-wider bg-white/5 border-b border-white/5">
+                                <th class="py-4 px-6 font-medium text-left">Hackathon Details</th>
+                                <th class="py-4 px-6 font-medium text-left">Date</th>
+                                <th class="py-4 px-6 font-medium text-left">Status</th>
+                                <th class="py-4 px-6 font-medium text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hackathons-table-body" class="divide-y divide-white/5">
+                            <!-- Injected -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
     </main>
     
     <!-- Broadcast Modal -->
@@ -287,6 +313,7 @@
         function switchTab(viewId) {
             document.getElementById('view-dashboard').classList.add('hidden');
             document.getElementById('view-courses').classList.add('hidden');
+            document.getElementById('view-hackathons').classList.add('hidden');
             document.getElementById(`view-${viewId}`).classList.remove('hidden');
             
             // Sidebar Active State
@@ -294,7 +321,13 @@
             const btn = document.getElementById(`btn-${viewId}`);
             if(btn) btn.classList.add('active');
             
-            document.getElementById('page-title').innerText = viewId === 'dashboard' ? 'Dashboard Overview' : 'Course Management';
+            let title = 'Dashboard Overview';
+            if(viewId === 'courses') title = 'Course Management';
+            if(viewId === 'hackathons') {
+                title = 'Hackathon Management';
+                loadAdminHackathons();
+            }
+            document.getElementById('page-title').innerText = title;
         }
 
         function toggleMobileSidebar() {
@@ -341,6 +374,53 @@
         function openCourseEditor(course) {
              const id = course.id || course._id;
              window.location.href = `editor.html?id=${id}`;
+        }
+
+        async function loadAdminHackathons() {
+             try {
+                const res = await fetch(`${CONFIG.API_BASE_URL}/hackathons`);
+                const data = await res.json();
+                const tbody = document.getElementById('hackathons-table-body');
+                tbody.innerHTML = '';
+                
+                data.forEach(h => {
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-white/5 transition-colors";
+                    const id = h.id || h._id;
+                    tr.innerHTML = `
+                        <td class="py-4 px-6">
+                            <div class="flex items-center gap-3">
+                                <span class="font-bold text-white">${h.title}</span>
+                                <span class="text-[10px] text-gray-500">${h.organizer}</span>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6 text-gray-400 text-xs">${new Date(h.date).toLocaleDateString()}</td>
+                        <td class="py-4 px-6"><span class="px-2 py-1 rounded-full bg-neon-cyan/10 text-neon-cyan text-[10px] font-bold border border-neon-cyan/20">${h.status}</span></td>
+                        <td class="py-4 px-6 text-right">
+                             <button onclick="window.location.href='hackathon-editor.html?id=${id}'" class="p-2 rounded hover:bg-white/10 text-gray-400 hover:text-white"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                             <button onclick="deleteHackathon('${id}')" class="p-2 rounded hover:bg-neon-red/10 text-gray-400 hover:text-neon-red"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+                lucide.createIcons();
+            } catch(e) {}
+        }
+
+        async function deleteHackathon(id) {
+             if(confirm("Delete this hackathon?")) {
+                 let token = localStorage.getItem('adminToken') || '';
+                 if(token.includes('Bearer ')) token = token.replace('Bearer ', '').trim();
+                 
+                 const headers = {};
+                 if(token) headers['Authorization'] = `Bearer ${token}`;
+
+                 await fetch(`${CONFIG.API_BASE_URL}/hackathons/${id}`, { 
+                     method: 'DELETE',
+                     headers: headers
+                 });
+                 loadAdminHackathons();
+             }
         }
 
         // Delete Logic

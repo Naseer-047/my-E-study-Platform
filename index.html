@@ -315,7 +315,10 @@
                  <h2 class="text-3xl md:text-4xl font-display font-bold text-white">Upcoming Hackathons</h2>
             </div>
             
-             <div class="space-y-4 gs-reveal">
+             <div class="space-y-4 gs-reveal" id="hackathons-container">
+                 <!-- Loading State -->
+                 <div class="text-center text-gray-600 animate-pulse py-10">Syncing with global events...</div>
+             </div>
                 <!-- Event 1 -->
                 <div class="glass-panel p-6 rounded-xl flex flex-col md:flex-row items-center gap-6 border-l-4 border-l-neon-purple hover:bg-white/5 transition-colors">
                     <div class="text-center md:text-left min-w-[100px]">
@@ -554,7 +557,48 @@
             } catch (e) { console.error(e); }
         }
         
+        async function loadHackathons() {
+            try {
+                const res = await fetch(`${CONFIG.API_BASE_URL}/hackathons`);
+                const data = await res.json();
+                const container = document.getElementById('hackathons-container');
+                if(!container) return;
+
+                if(data.length === 0) {
+                    container.innerHTML = `<div class="text-center text-gray-500 py-10">No upcoming events scheduled. Check back soon!</div>`;
+                    return;
+                }
+
+                container.innerHTML = data.map((h, i) => {
+                    const date = h.date ? new Date(h.date) : new Date();
+                    const day = date.getDate();
+                    const month = date.toLocaleString('default', { month: 'short' }).toUpperCase();
+                    const accentColor = h.status === 'Registration Open' ? 'text-neon-green' : 'text-neon-purple';
+                    const borderClass = h.status === 'Registration Open' ? 'border-l-neon-green' : 'border-l-neon-purple';
+
+                    return `
+                        <div class="glass-panel p-6 rounded-xl flex flex-col md:flex-row items-center gap-6 border-l-4 ${borderClass} hover:bg-white/5 transition-all duration-300">
+                            <div class="text-center md:text-left min-w-[100px]">
+                                <span class="block text-2xl font-bold ${accentColor}">${day} ${month}</span>
+                                <span class="text-xs text-gray-500 uppercase tracking-widest">${h.organizer}</span>
+                            </div>
+                            <div class="flex-1 text-center md:text-left">
+                                <h3 class="text-lg font-bold text-white">${h.title}</h3>
+                                <p class="text-gray-400 text-sm line-clamp-1">${h.description || 'Global Competition'}</p>
+                            </div>
+                            <a href="${h.link || '#'}" target="_blank" class="px-6 py-2 text-xs font-bold uppercase tracking-wide ${h.status === 'Registration Open' ? 'bg-neon-green text-black' : 'text-white border border-white/20'} rounded-full hover:scale-105 transition-transform">
+                                ${h.status || 'Register'}
+                            </a>
+                        </div>
+                    `;
+                }).join('');
+                
+                lucide.createIcons();
+            } catch(e) { console.error("Hackathon render failed", e); }
+        }
+
         loadContent();
+        loadHackathons();
         
         // Mobile Interactions
         function toggleMobileMenu() {
