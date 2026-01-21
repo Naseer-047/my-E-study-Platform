@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const courseId = urlParams.get('id');
 
     if (!courseId) {
-        alert('No course ID provided');
         window.location.href = 'courses.html';
         return;
     }
@@ -12,12 +11,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         const response = await fetch(`${CONFIG.API_BASE_URL}/courses/${courseId}`);
         if (!response.ok) throw new Error('Course not found');
         const course = await response.json();
-
         initPlayer(course);
 
     } catch (error) {
         console.error('Error:', error);
-        alert('Failed to load course details');
     }
 });
 
@@ -28,44 +25,92 @@ function initPlayer(course) {
     const placeholder = document.getElementById('placeholder');
     const lessonTitle = document.getElementById('lesson-title');
 
-    // Load progress from LocalStorage
+    // Load progress
     const progressKey = `academia_progress_${course.id || course._id}`;
     let savedProgress = JSON.parse(localStorage.getItem(progressKey)) || {};
     
+    // Clear existing
+    playlist.innerHTML = '';
+
     // Render Playlist
     course.videos.forEach((video, index) => {
         const item = document.createElement('div');
-        item.className = 'p-4 border-b border-gray-800 cursor-pointer hover:bg-gray-800 transition-colors flex gap-3 group';
-        if (savedProgress.lastVideoId === video.id) item.classList.add('active-video');
+        // Glass Theme Classes
+        item.className = 'p-3 mx-2 mb-2 rounded-lg cursor-pointer transition-all duration-300 group flex items-start gap-3 border border-transparent hover:bg-white/5';
+        
+        const isActive = savedProgress.lastVideoId === video.id;
+        
+        if (isActive) {
+            item.classList.add('bg-neon-purple/10', 'border-neon-purple/30');
+        }
 
         item.innerHTML = `
-            <div class="mt-1 text-gray-500 group-hover:text-white"><i data-lucide="play-circle" class="w-4 h-4"></i></div>
-            <div>
-                <h4 class="text-sm font-medium text-gray-300 group-hover:text-white leading-snug">${video.title}</h4>
-                <p class="text-xs text-gray-500 mt-1">${video.duration}</p>
+            <div class="mt-0.5 w-6 h-6 rounded flex items-center justify-center text-[10px] font-bold shrink-0 transition-colors ${isActive ? 'bg-neon-purple text-white shadow-[0_0_10px_rgba(168,85,247,0.4)]' : 'bg-white/10 text-gray-500'}">
+                ${isActive ? '<i data-lucide="play" class="w-3 h-3"></i>' : index + 1}
+            </div>
+            <div class="flex-1">
+                <h4 class="text-sm font-medium leading-snug transition-colors ${isActive ? 'text-white' : 'text-gray-400 group-hover:text-gray-200'}">${video.title}</h4>
+                <p class="text-[10px] text-gray-600 mt-1 uppercase tracking-wider">${video.duration || '10:00'}</p>
             </div>
         `;
 
         item.addEventListener('click', () => {
-            // Update UI
-            document.querySelectorAll('.active-video').forEach(el => el.classList.remove('active-video'));
-            item.classList.add('active-video');
+            // Reset Siblings
+            Array.from(playlist.children).forEach(sib => {
+                sib.className = 'p-3 mx-2 mb-2 rounded-lg cursor-pointer transition-all duration-300 group flex items-start gap-3 border border-transparent hover:bg-white/5';
+                const iconBox = sib.querySelector('div:first-child');
+                const title = sib.querySelector('h4');
+                
+                // Reset Icon
+                const idx = Array.from(playlist.children).indexOf(sib) + 1;
+                iconBox.className = 'mt-0.5 w-6 h-6 rounded flex items-center justify-center text-[10px] font-bold shrink-0 transition-colors bg-white/10 text-gray-500';
+                iconBox.innerHTML = idx;
+
+                // Reset Text
+                title.className = 'text-sm font-medium leading-snug transition-colors text-gray-400 group-hover:text-gray-200';
+            });
             
+            // Set Active
+            item.className = 'p-3 mx-2 mb-2 rounded-lg cursor-pointer transition-all duration-300 group flex items-start gap-3 border border-neon-purple/30 bg-neon-purple/10';
+            const activeIconBox = item.querySelector('div:first-child');
+            const activeTitle = item.querySelector('h4');
+            
+            activeIconBox.className = 'mt-0.5 w-6 h-6 rounded flex items-center justify-center text-[10px] font-bold shrink-0 transition-colors bg-neon-purple text-white shadow-[0_0_10px_rgba(168,85,247,0.4)]';
+            activeIconBox.innerHTML = '<i data-lucide="play" class="w-3 h-3"></i>';
+            
+            activeTitle.className = 'text-sm font-medium leading-snug transition-colors text-white';
+            
+            lucide.createIcons();
+
             // Update Player
             placeholder.classList.add('hidden');
-            player.src = video.url + "?autoplay=1";
-            lessonTitle.textContent = video.title;
+            // Extract Video ID if full URL
+            let vId = video.url;
+            if(vId.includes('v=')) vId = vId.split('v=')[1];
+            if(vId.includes('&')) vId = vId.split('&')[0];
+            
+            // If it's just the ID, use embed URL
+            // Assuming data is mixed, standardizing on Embed URL is safest if not already
+            let embedUrl = video.url;
+            if(!embedUrl.includes('embed')) {
+                 embedUrl = `https://www.youtube.com/embed/${vId}`;
+            }
 
-            // Render Notes
+            player.src = `${embedUrl}?autoplay=1&rel=0&modestbranding=1`;
+            lessonTitle.textContent = video.title;
+            
+            // Notes Rendering
             const notesEl = document.getElementById('lesson-notes');
             const downloadBtn = document.getElementById('download-notes-btn');
             
             if(video.notes) {
+                // Style overrides for markdown in glass theme
+                // We handle this via CSS in player.html mostly, but ensure HTML matches
                 notesEl.innerHTML = marked.parse(video.notes);
                 downloadBtn.classList.remove('hidden');
-                downloadBtn.setAttribute('data-filename', `${video.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}-notes.pdf`);
+                downloadBtn.setAttribute('data-filename', `${video.title.replace(/[^a-z0-9]/gi, '_')}.pdf`);
             } else {
-                notesEl.innerHTML = '<p class="text-gray-400 italic">No notes available for this lesson.</p>';
+                notesEl.innerHTML = '<p class="text-gray-600 italic">No notes available for this module.</p>';
                 downloadBtn.classList.add('hidden');
             }
 
@@ -76,15 +121,15 @@ function initPlayer(course) {
 
         playlist.appendChild(item);
 
-        // Auto-play first video or last watched
-        if (index === 0 && !savedProgress.lastVideoId) {
-            // Optional: Don't auto-play immediately on load to not annoy, but user might expect it
-            // item.click(); 
-        } else if (savedProgress.lastVideoId === video.id) {
-            item.click();
+        // Auto-Play Logic
+        if (isActive || (index === 0 && !savedProgress.lastVideoId)) {
+             // We don't click() to avoid auto-playing annoying audio on load, 
+             // but we do update the UI to show it's selected
+             // Actually, for a "Premium" feel, preserving state is key.
+             if(isActive) item.click();
         }
     });
-    
+
     lucide.createIcons();
 }
 
@@ -93,13 +138,18 @@ window.downloadNotes = function() {
     const btn = document.getElementById('download-notes-btn');
     const filename = btn.getAttribute('data-filename') || 'notes.pdf';
     
+    // Add temporary class for white background pdf
+    element.classList.add('text-black');
+    
     const opt = {
         margin: 1,
         filename: filename,
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
+        html2canvas: { scale: 2, backgroundColor: '#ffffff' }, // Force white bg for PDF
         jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
     };
     
-    html2pdf().set(opt).from(element).save();
+    html2pdf().set(opt).from(element).save().then(() => {
+        element.classList.remove('text-black');
+    });
 }

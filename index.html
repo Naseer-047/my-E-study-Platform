@@ -3,191 +3,573 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Academia | Learn once. Build forever.</title>
+    <title>Academia | Future Learning</title>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Icons -->
+    <!-- Icons & Tools -->
     <script src="https://unpkg.com/lucide@latest"></script>
-
-    <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- GSAP Animation Engine -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
                 extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    },
                     colors: {
-                        classic: {
-                            cream: '#F9F8F4',
-                            charcoal: '#1A202C',
-                            navy: '#2C3E50',
-                            gold: '#C5A059',
-                            softgray: '#E2E8F0'
+                        glass: {
+                            100: 'rgba(255, 255, 255, 0.1)',
+                            200: 'rgba(255, 255, 255, 0.2)',
+                            300: 'rgba(255, 255, 255, 0.3)',
+                            dark: 'rgba(10, 10, 20, 0.6)',
+                            border: 'rgba(255, 255, 255, 0.15)',
+                        },
+                        neon: {
+                            blue: '#4F46E5',
+                            purple: '#A855F7',
+                            cyan: '#06B6D4'
                         }
                     },
-                    fontFamily: {
-                        serif: ['Playfair Display', 'serif'],
-                        sans: ['Inter', 'sans-serif'],
+                    backdropBlur: {
+                        xs: '2px',
+                    },
+                     animation: {
+                        'gradient-x': 'gradient-x 15s ease infinite',
+                    },
+                    keyframes: {
+                        'gradient-x': {
+                            '0%, 100%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'left center'
+                            },
+                            '50%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'right center'
+                            },
+                        },
                     }
                 }
             }
         }
     </script>
+
     <style>
-        body { background-color: #F9F8F4; color: #1A202C; }
-        .hover-card { transition: all 0.3s ease; }
-        .hover-card:hover { transform: translateY(-4px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
+        /* Global Reset & Base */
+        body { 
+            background: #0f172a; 
+            color: #ffffff; 
+            overflow-x: hidden;
+        }
+
+        /* Animated Ambient Background */
+        .ambient-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 15% 50%, rgba(79, 70, 229, 0.15), transparent 25%),
+                        radial-gradient(circle at 85% 30%, rgba(168, 85, 247, 0.15), transparent 25%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Glassmorphism Classes */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+        }
+        
+        .glass-panel:hover {
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 12px 40px 0 rgba(79, 70, 229, 0.15);
+        }
+
+        .glass-nav {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-button {
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .glass-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 25px rgba(168, 85, 247, 0.3);
+            border-color: rgba(168, 85, 247, 0.5);
+        }
+
+        .text-gradient {
+            background: linear-gradient(to right, #ffffff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .text-gradient-active {
+            background: linear-gradient(to right, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Utilities */
+        .section-padding { padding-top: 8rem; padding-bottom: 8rem; }
+        .hide-scroll::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="font-sans antialiased flex flex-col min-h-screen">
+<body class="selection:bg-neon-purple selection:text-white">
 
-    <!-- Navbar -->
-    <!-- Navbar -->
-    <nav class="w-full py-6 px-8 flex justify-between items-center border-b border-gray-200 bg-[#F9F8F4]/80 backdrop-blur-md sticky top-0 z-50">
-        <a href="index.html" class="text-2xl font-serif font-semibold tracking-tight text-classic-charcoal flex items-center gap-2">
-            <i data-lucide="book-open" class="w-6 h-6"></i>
-            Academia
-        </a>
-        
-        <!-- Desktop Menu -->
-        <div class="hidden md:flex gap-8 text-sm font-medium text-gray-600">
-            <a href="index.html" class="hover:text-classic-navy transition-colors">Home</a>
-            <a href="frontend/courses.html" class="hover:text-classic-navy transition-colors">Courses</a>
-            <a href="#" class="hover:text-classic-navy transition-colors">Mentorship</a>
-        </div>
-        <div class="hidden md:block">
-            <a href="admin/login.html" class="text-sm font-medium text-gray-500 hover:text-classic-navy transition-colors">Admin Login</a>
-        </div>
+    <div class="ambient-bg"></div>
 
-        <!-- Mobile Menu Button -->
-        <button id="mobile-menu-btn" class="md:hidden text-gray-600 hover:text-classic-charcoal p-2">
-            <i data-lucide="menu" class="w-6 h-6"></i>
-        </button>
+    <!-- Floating Navbar -->
+    <nav class="fixed top-0 w-full z-50 glass-nav transition-all duration-500" id="navbar">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+            <!-- Logo -->
+            <a href="index.html" class="flex items-center gap-3 group opacity-0 nav-item">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-neon-blue to-neon-purple flex items-center justify-center text-white shadow-lg group-hover:shadow-neon-purple/50 transition-shadow">
+                    <i data-lucide="zap" class="w-5 h-5"></i>
+                </div>
+                <span class="font-display font-bold text-xl tracking-tight text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-neon-blue group-hover:to-neon-purple transition-all">Academia</span>
+            </a>
+            
+            <!-- Desktop Links -->
+            <div class="hidden md:flex gap-8">
+                <a href="#stats" class="text-sm font-medium text-gray-300 hover:text-white transition-colors nav-item opacity-0">Impact</a>
+                <a href="frontend/courses.html" class="text-sm font-medium text-gray-300 hover:text-white transition-colors nav-item opacity-0">Library</a>
+                <a href="frontend/notes.html" class="text-sm font-medium text-gray-300 hover:text-white transition-colors nav-item opacity-0">Notes</a>
+                <a href="admin/login.html" class="text-sm font-medium text-neon-cyan hover:text-neon-cyan/80 transition-colors nav-item opacity-0">Admin</a>
+            </div>
+
+            <!-- Mobile Menu Btn -->
+            <button class="md:hidden text-white nav-item opacity-0" onclick="toggleMobileMenu()">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+        </div>
     </nav>
 
     <!-- Mobile Menu Overlay -->
-    <div id="mobile-menu" class="hidden fixed inset-0 z-40 bg-white/95 backdrop-blur-sm pt-24 px-8 flex flex-col gap-6 md:hidden transition-all duration-300">
-        <a href="index.html" class="text-xl font-serif text-classic-charcoal border-b border-gray-100 pb-2">Home</a>
-        <a href="frontend/courses.html" class="text-xl font-serif text-classic-charcoal border-b border-gray-100 pb-2">Courses</a>
-        <a href="#" class="text-xl font-serif text-gray-400 border-b border-gray-100 pb-2">Mentorship</a>
-        <a href="admin/login.html" class="text-xl font-serif text-classic-navy pt-4">Admin Login</a>
-        <button id="close-menu-btn" class="absolute top-6 right-8 text-gray-500 p-2">
+    <div id="mobile-menu" class="fixed inset-0 z-40 bg-black/95 backdrop-blur-xl hidden flex-col items-center justify-center space-y-8">
+        <a href="index.html" class="text-3xl font-display font-bold text-white">Home</a>
+        <a href="frontend/courses.html" class="text-3xl font-display font-bold text-gray-400">Library</a>
+        <a href="frontend/notes.html" class="text-3xl font-display font-bold text-gray-400">Notes</a>
+        <a href="admin/login.html" class="text-xl font-medium text-neon-purple pt-8">Admin Access</a>
+        <button onclick="toggleMobileMenu()" class="absolute top-8 right-8 text-gray-500 hover:text-white">
             <i data-lucide="x" class="w-8 h-8"></i>
         </button>
     </div>
 
-    <!-- Hero Section -->
-    <main class="flex-grow">
-        <section class="relative bg-cover bg-center pt-24 pb-20 text-center" style="background-image: url('https://images.unsplash.com/photo-1507842217153-e21f40d08d29?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');">
-            <!-- Overlay -->
-            <div class="absolute inset-0 bg-white/90 backdrop-blur-sm"></div>
+    <!-- HERO SECTION -->
+    <section class="relative min-h-screen flex items-center justify-center px-6 pt-20 overflow-hidden">
+        <!-- Floating Elements Background -->
+        <div class="absolute top-1/4 left-10 w-64 h-64 bg-neon-blue/20 rounded-full blur-[100px] animate-pulse"></div>
+        <div class="absolute bottom-1/4 right-10 w-96 h-96 bg-neon-purple/20 rounded-full blur-[120px] animate-pulse" style="animation-duration: 4s;"></div>
+
+        <div class="relative z-10 max-w-5xl mx-auto text-center">
             
-            <div class="relative z-10 max-w-7xl mx-auto px-8">
-                <span class="inline-block py-1 px-3 rounded-full bg-gray-100 text-xs font-semibold tracking-wider text-gray-600 mb-6 uppercase">Internal Learning Platform</span>
-                <h1 class="text-5xl md:text-7xl font-serif font-medium text-classic-charcoal mb-6 leading-tight">
-                    Learn once.<br>
-                    <span class="text-gray-400 italic">Build forever.</span>
-                </h1>
-                <p class="text-lg md:text-xl text-gray-500 max-w-2xl mx-auto mb-10 font-light leading-relaxed">
-                    A distraction-free environment designed for deep work and mastery. 
-                    Focus on the concepts that matter.
-                </p>
-                <div class="flex flex-col md:flex-row justify-center gap-4">
-                    <a href="frontend/courses.html" class="bg-classic-charcoal text-white px-8 py-3 rounded-md font-medium hover:bg-black transition-colors shadow-lg shadow-gray-200">
-                        Explore Courses
-                    </a>
-                    <a href="#categories" class="px-8 py-3 rounded-md font-medium text-gray-600 hover:bg-gray-100 transition-colors bg-white/50 border border-gray-200">
-                        View Tracks
-                    </a>
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-panel mb-8 hero-element opacity-0 translate-y-10">
+                <span class="w-2 h-2 rounded-full bg-neon-cyan animate-pulse"></span>
+                <span class="text-xs font-medium text-neon-cyan tracking-wider uppercase">Private Study Group</span>
+            </div>
+
+            <h1 class="text-6xl md:text-8xl font-display font-bold leading-tight mb-8 hero-element opacity-0 translate-y-10">
+                <span class="text-gradient">Study Together.</span><br>
+                <span class="text-gradient-active">Succeed Together.</span>
+            </h1>
+
+            <p class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-12 font-light leading-relaxed hero-element opacity-0 translate-y-10">
+                The central hub for our class notes, lecture recordings, and project resources. 
+                Everything you need to ace the semester.
+            </p>
+
+            <div class="flex flex-col md:flex-row justify-center gap-6 hero-element opacity-0 translate-y-10">
+                <a href="frontend/courses.html" class="glass-button px-8 py-4 rounded-lg font-medium text-white flex items-center justify-center gap-2 group">
+                    <span>Open Dashboard</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                </a>
+                <a href="frontend/notes.html" class="px-8 py-4 rounded-lg font-medium text-gray-400 hover:text-white transition-colors border border-transparent hover:border-glass-border">
+                    Find Notes
+                </a>
+            </div>
+            
+            <!-- Dashboard Preview -->
+            <div class="mt-20 relative mx-auto max-w-4xl hero-element opacity-0 translate-y-20 perspective-1000">
+                <div class="glass-panel p-2 rounded-xl transition-transform hover:scale-[1.01] duration-500" id="hero-card">
+                    <img src="https://images.unsplash.com/photo-1523050854058-0df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=2670&q=80" class="rounded-lg w-full h-auto opacity-80 hover:opacity-100 transition-opacity">
+                     <!-- Floating Badge -->
+                    <div class="absolute -top-6 -right-6 glass-panel p-4 rounded-xl flex items-center gap-3 animate-bounce" style="animation-duration: 3s;">
+                        <div class="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
+                            <i data-lucide="users" class="w-5 h-5"></i>
+                        </div>
+                        <div class="text-left">
+                            <span class="block text-xs text-gray-400">Classmates</span>
+                            <span class="block text-sm font-bold text-white">42 Online</span>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- Categories -->
-        <section id="categories" class="max-w-7xl mx-auto px-8 py-20 border-t border-gray-200">
+    <!-- STATS (Restored Content) -->
+    <section id="stats" class="py-12 border-y border-white/5 bg-white/0 relative">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div class="text-center gs-reveal">
+                <span class="block text-4xl font-display font-bold text-white mb-1" id="stat-courses">0+</span>
+                <span class="text-xs text-gray-500 uppercase tracking-widest">Shared Subjects</span>
+            </div>
+            <div class="text-center gs-reveal opacity-50">
+                <span class="block text-4xl font-display font-bold text-white mb-1">120+</span>
+                <span class="text-xs text-gray-500 uppercase tracking-widest">Peers Active</span>
+            </div>
+            <div class="text-center gs-reveal opacity-50">
+                <span class="block text-4xl font-display font-bold text-white mb-1">100%</span>
+                <span class="text-xs text-gray-500 uppercase tracking-widest">Resource Access</span>
+            </div>
+            <div class="text-center gs-reveal opacity-50">
+                <span class="block text-4xl font-display font-bold text-white mb-1">Team</span>
+                <span class="text-xs text-gray-500 uppercase tracking-widest">Focused</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURES ROW (Restored Content) -->
+    <section class="section-padding px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-20 max-w-2xl mx-auto gs-title">
+                <span class="text-neon-cyan text-xs font-bold tracking-widest uppercase mb-4 block">Study Smarter</span>
+                <h2 class="text-4xl md:text-5xl font-display font-bold mb-6">Built for <br class="hidden md:block"/> <span class="text-gradient-active">Collaborative Success.</span></h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="glass-panel p-8 rounded-2xl group hover:-translate-y-2 transition-transform duration-500 gs-card">
+                    <div class="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center mb-6 group-hover:bg-neon-blue/20 transition-colors">
+                        <i data-lucide="layout" class="w-6 h-6 text-gray-300 group-hover:text-neon-blue"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Organized by Topic</h3>
+                    <p class="text-gray-400 leading-relaxed text-sm">No more messy Google Drive folders. Every lecture is categorized and tagged for easy retrieval.</p>
+                </div>
+                
+                <!-- Card 2 -->
+                <div class="glass-panel p-8 rounded-2xl group hover:-translate-y-2 transition-transform duration-500 gs-card">
+                    <div class="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center mb-6 group-hover:bg-neon-purple/20 transition-colors">
+                        <i data-lucide="video" class="w-6 h-6 text-gray-300 group-hover:text-neon-purple"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">HD Recordings</h3>
+                    <p class="text-gray-400 leading-relaxed text-sm">Missed a class? Watch high-definition recordings with crystal clear audio anytime.</p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="glass-panel p-8 rounded-2xl group hover:-translate-y-2 transition-transform duration-500 gs-card">
+                    <div class="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center mb-6 group-hover:bg-neon-cyan/20 transition-colors">
+                        <i data-lucide="file-text" class="w-6 h-6 text-gray-300 group-hover:text-neon-cyan"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Downloadable Notes</h3>
+                    <p class="text-gray-400 leading-relaxed text-sm">Get verified lecture notes in PDF format. Annotate them on your tablet or print them out.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- LIVE COURSES (Dynamic Grid) -->
+    <section class="section-padding relative overflow-hidden">
+        <!-- Decoration -->
+        <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-neon-blue/10 rounded-full blur-[120px] -z-10"></div>
+
+        <div class="max-w-7xl mx-auto px-6">
             <div class="flex justify-between items-end mb-12">
-                <div>
-                    <h2 class="text-3xl font-serif text-classic-charcoal mb-2">Curated Tracks</h2>
-                    <p class="text-gray-500 font-light">Select a discipline to begin your journey.</p>
-                </div>
-                <a href="frontend/courses.html" class="text-sm font-medium text-classic-navy hover:underline">View all libraries →</a>
+                <h2 class="text-4xl font-display font-bold gs-title">Recent Uploads</h2>
+                <a href="frontend/courses.html" class="hidden md:flex items-center gap-2 text-sm font-medium text-neon-cyan hover:text-white transition-colors gs-title">
+                    View All <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </a>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <!-- Category 1 -->
-                <div class="bg-white p-8 rounded-xl border border-gray-100 hover-card cursor-pointer group">
-                    <div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mb-6 group-hover:bg-blue-100 transition-colors">
-                        <i data-lucide="code-2" class="text-blue-600"></i>
+            <div id="featured-grid" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 6: UPCOMING HACKATHONS (Timeline) -->
+    <section class="section-padding relative">
+        <div class="max-w-5xl mx-auto px-6">
+            <div class="text-center mb-12 gs-reveal">
+                 <span class="text-neon-cyan text-xs font-bold tracking-widest uppercase mb-4 block">Timeline</span>
+                 <h2 class="text-3xl md:text-4xl font-display font-bold text-white">Upcoming Hackathons</h2>
+            </div>
+            
+             <div class="space-y-4 gs-reveal">
+                <!-- Event 1 -->
+                <div class="glass-panel p-6 rounded-xl flex flex-col md:flex-row items-center gap-6 border-l-4 border-l-neon-purple hover:bg-white/5 transition-colors">
+                    <div class="text-center md:text-left min-w-[100px]">
+                        <span class="block text-2xl font-bold text-neon-purple">15 OCT</span>
+                        <span class="text-xs text-gray-500 uppercase tracking-widest">Global</span>
                     </div>
-                    <h3 class="text-xl font-serif mb-2 text-gray-900">Web Development</h3>
-                    <p class="text-sm text-gray-500 leading-relaxed">Master the modern web stack. HTML, CSS, React, and Node.</p>
+                    <div class="flex-1 text-center md:text-left">
+                        <h3 class="text-lg font-bold text-white">Smart India Hackathon</h3>
+                        <p class="text-gray-400 text-sm">Team registration deadline. Minimum 6 members required.</p>
+                    </div>
+                     <div class="px-4 py-1 text-xs font-bold uppercase tracking-wide text-black bg-neon-purple rounded-full">
+                        Register
+                    </div>
                 </div>
 
-                <!-- Category 2 -->
-                <div class="bg-white p-8 rounded-xl border border-gray-100 hover-card cursor-pointer group">
-                    <div class="w-12 h-12 bg-yellow-50 rounded-full flex items-center justify-center mb-6 group-hover:bg-yellow-100 transition-colors">
-                        <i data-lucide="terminal" class="text-yellow-600"></i>
+                <!-- Event 2 (Exam) -->
+                <div class="glass-panel p-6 rounded-xl flex flex-col md:flex-row items-center gap-6 border-l-4 border-l-neon-blue hover:bg-white/5 transition-colors">
+                    <div class="text-center md:text-left min-w-[100px]">
+                        <span class="block text-2xl font-bold text-neon-blue">22 OCT</span>
+                        <span class="text-xs text-gray-500 uppercase tracking-widest">Internal</span>
                     </div>
-                    <h3 class="text-xl font-serif mb-2 text-gray-900">Python & AI</h3>
-                    <p class="text-sm text-gray-500 leading-relaxed">Data science, automation, and machine learning fundamentals.</p>
+                    <div class="flex-1 text-center md:text-left">
+                        <h3 class="text-lg font-bold text-white">Data Structures Mid-Term</h3>
+                        <p class="text-gray-400 text-sm">Modules 1-4. Trees, Graphs, and Hash Maps.</p>
+                    </div>
+                     <div class="px-4 py-1 text-xs font-bold uppercase tracking-wide text-white border border-white/20 rounded-full">
+                        High Priority
+                    </div>
                 </div>
 
-                <!-- Category 3 -->
-                <div class="bg-white p-8 rounded-xl border border-gray-100 hover-card cursor-pointer group">
-                    <div class="w-12 h-12 bg-purple-50 rounded-full flex items-center justify-center mb-6 group-hover:bg-purple-100 transition-colors">
-                        <i data-lucide="cpu" class="text-purple-600"></i>
+                 <!-- Event 3 -->
+                <div class="glass-panel p-6 rounded-xl flex flex-col md:flex-row items-center gap-6 border-l-4 border-l-neon-cyan hover:bg-white/5 transition-colors">
+                    <div class="text-center md:text-left min-w-[100px]">
+                        <span class="block text-2xl font-bold text-neon-cyan">05 NOV</span>
+                        <span class="text-xs text-gray-500 uppercase tracking-widest">Project</span>
                     </div>
-                    <h3 class="text-xl font-serif mb-2 text-gray-900">Algorithms</h3>
-                    <p class="text-sm text-gray-500 leading-relaxed">Data structures and problem-solving patterns.</p>
-                </div>
-
-                <!-- Category 4 -->
-                <div class="bg-white p-8 rounded-xl border border-gray-100 hover-card cursor-pointer group">
-                    <div class="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center mb-6 group-hover:bg-green-100 transition-colors">
-                        <i data-lucide="wrench" class="text-green-600"></i>
+                    <div class="flex-1 text-center md:text-left">
+                        <h3 class="text-lg font-bold text-white">AI Project Submission</h3>
+                        <p class="text-gray-400 text-sm">Final model weights and documentation due.</p>
                     </div>
-                    <h3 class="text-xl font-serif mb-2 text-gray-900">DevOps & Tools</h3>
-                    <p class="text-sm text-gray-500 leading-relaxed">Git, Docker, Linux, and deployment strategies.</p>
+                     <div class="px-4 py-1 text-xs font-bold uppercase tracking-wide text-white border border-white/20 rounded-full">
+                        Assignment
+                    </div>
                 </div>
             </div>
-        </section>
-    </main>
+        </div>
+    </section>
+
+    <!-- SECTION 7: CONTRIBUTORS & REQUESTS -->
+    <section class="section-padding bg-black/20">
+         <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+            
+            <!-- Request Notes -->
+            <div class="order-2 md:order-1 gs-reveal">
+                 <span class="text-xs font-bold text-neon-cyan uppercase tracking-wide block mb-2">Community</span>
+                 <h2 class="text-3xl md:text-4xl font-display font-bold text-white mb-6">Missing something?</h2>
+                 <p class="text-gray-400 mb-8 leading-relaxed">
+                     Don't stress. If you can't find specific notes or recordings, just drop a request. 
+                     The class rep or a peer will upload it within 24 hours.
+                 </p>
+                 <div class="flex gap-4">
+                     <button class="glass-button px-8 py-4 rounded-full font-bold text-white hover:bg-neon-blue/20 flex items-center gap-2">
+                        <i data-lucide="file-plus" class="w-4 h-4"></i> Request Notes
+                     </button>
+                      <button class="px-8 py-4 rounded-full font-bold text-gray-400 border border-white/10 hover:text-white hover:border-white/30 transition-colors">
+                        Upload
+                     </button>
+                 </div>
+            </div>
+
+            <!-- Hall of Fame -->
+             <div class="order-1 md:order-2 glass-panel p-8 rounded-2xl relative gs-reveal">
+                 <div class="flex justify-between items-center mb-8 border-b border-white/10 pb-4">
+                    <h3 class="font-display font-bold text-xl text-white">Top Contributors</h3>
+                    <span class="text-xs text-neon-green bg-neon-green/10 px-2 py-1 rounded border border-neon-green/20">Active Team</span>
+                 </div>
+                
+                <ul class="space-y-4">
+                    <li class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-neon-purple to-blue-600 flex items-center justify-center font-bold text-white text-xs shadow-lg shadow-neon-purple/20">RS</div>
+                        <div class="flex-1">
+                            <span class="block text-sm font-bold text-white">Rahul S.</span>
+                            <span class="block text-xs text-gray-500">Class Rep • 15 Uploads</span>
+                        </div>
+                        <i data-lucide="trophy" class="w-5 h-5 text-neon-gold text-yellow-500"></i>
+                    </li>
+                    <li class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center font-bold text-gray-300 text-xs">AK</div>
+                        <div class="flex-1">
+                            <span class="block text-sm font-bold text-white">Ananya K.</span>
+                            <span class="block text-xs text-gray-500">8 Uploads</span>
+                        </div>
+                         <span class="text-gray-500 font-bold text-sm">#2</span>
+                    </li>
+                     <li class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center font-bold text-gray-300 text-xs">MD</div>
+                        <div class="flex-1">
+                            <span class="block text-sm font-bold text-white">Mike D.</span>
+                            <span class="block text-xs text-gray-500">5 Uploads</span>
+                        </div>
+                         <span class="text-orange-700 font-bold text-sm">#3</span>
+                    </li>
+                </ul>
+            </div>
+         </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="py-24 relative">
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/50"></div>
+        <div class="max-w-4xl mx-auto px-6 text-center relative z-10">
+            <h2 class="text-4xl md:text-5xl font-display font-bold mb-8">Ready for the next exam?</h2>
+            
+            <div class="flex items-center justify-center gap-4 gs-reveal">
+                 <a href="frontend/courses.html" class="glass-button px-10 py-4 rounded-full font-bold text-white hover:bg-neon-blue/20">
+                    Open Dashboard
+                 </a>
+            </div>
+        </div>
+    </section>
 
     <!-- Footer -->
-    <footer class="border-t border-gray-200 py-12 bg-white">
-        <div class="max-w-7xl mx-auto px-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500">
-            <p>&copy; 2026 Academia Internal. All rights reserved.</p>
-            <div class="flex gap-6 mt-4 md:mt-0">
-                <a href="#" class="hover:text-classic-charcoal">Privacy</a>
-                <a href="#" class="hover:text-classic-charcoal">Terms</a>
-                <a href="#" class="hover:text-classic-charcoal">Support</a>
+    <footer class="py-12 border-t border-white/5 bg-black/20 backdrop-blur-lg">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-white">
+                    <i data-lucide="zap" class="w-4 h-4"></i>
+                </div>
+                <span class="font-display font-bold text-white text-lg">Academia</span>
             </div>
+            <p class="text-gray-500 text-sm">© 2026 Internal Systems. All rights reserved.</p>
         </div>
     </footer>
 
+    <script src="frontend/js/config.js"></script>
+    <script src="frontend/js/notifications.js"></script>
     <script>
-        lucide.createIcons();
+        // --- GSAP ANIMATIONS ---
+        gsap.registerPlugin(ScrollTrigger);
 
-        // Mobile Menu Logic
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const closeMenuBtn = document.getElementById('close-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
+        // Navbar Entrance
+        gsap.to(".nav-item", {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            stagger: 0.1,
+            ease: "power3.out",
+            delay: 0.5
+        });
 
-        function toggleMenu() {
-            mobileMenu.classList.toggle('hidden');
-            // Prevent body scroll when menu is open
-            if(!mobileMenu.classList.contains('hidden')) {
-                document.body.style.overflow = 'hidden';
+        // Hero Sequence
+        const heroTl = gsap.timeline();
+        heroTl.to(".hero-element", {
+            opacity: 1,
+            y: 0,
+            duration: 1,
+            stagger: 0.2,
+            ease: "power3.out",
+            delay: 0.2
+        });
+        
+        // Stats Reveal
+        gsap.from(".gs-reveal", {
+            scrollTrigger: {
+                trigger: "#stats",
+                start: "top 80%",
+            },
+            y: 30,
+            opacity: 0,
+            duration: 0.8,
+            stagger: 0.1,
+            ease: "power2.out"
+        });
+
+        // Features Cards
+        gsap.from(".gs-card", {
+            scrollTrigger: {
+                trigger: ".gs-title",
+                start: "top 70%",
+            },
+            y: 50,
+            opacity: 0,
+            duration: 1,
+            stagger: 0.15,
+            ease: "back.out(1.7)"
+        });
+
+        // Load Data
+        async function loadContent() {
+            try {
+                const res = await fetch(`${CONFIG.API_BASE_URL}/courses`);
+                const courses = await res.json();
+                
+                // Update Stats
+                document.getElementById('stat-courses').innerText = courses.length;
+                
+                // Render Grid
+                const grid = document.getElementById('featured-grid');
+                grid.innerHTML = '';
+                
+                courses.slice(0, 3).forEach((course, i) => {
+                    const card = document.createElement('div');
+                    card.className = "glass-panel p-4 rounded-xl cursor-pointer group hover:border-gray-500/50 transition-all duration-300 gs-reveal opacity-0 translate-y-10";
+                    card.onclick = () => window.location.href = `frontend/player.html?id=${course.id || course._id}`;
+                    
+                    card.innerHTML = `
+                        <div class="rounded-lg overflow-hidden h-48 relative mb-4">
+                            <img src="${course.thumbnail}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                            <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
+                        </div>
+                        <div class="flex justify-between items-start mb-2">
+                             <span class="text-neon-cyan text-xs font-bold uppercase tracking-wider">${course.category}</span>
+                             <span class="text-xs text-gray-500 flex items-center gap-1"><i data-lucide="video" class="w-3 h-3"></i> ${course.videos ? course.videos.length : 0}</span>
+                        </div>
+                        <h3 class="text-xl font-bold font-display text-white mb-2 group-hover:text-neon-purple transition-colors">${course.title}</h3>
+                        <p class="text-sm text-gray-400 line-clamp-2">${course.description || "No description."}</p>
+                    `;
+                    grid.appendChild(card);
+                });
+                
+                // Animate Grid Items after insertion
+                ScrollTrigger.refresh();
+                gsap.to(".gs-reveal", {
+                    scrollTrigger: {
+                        trigger: "#featured-grid",
+                        start: "top 85%",
+                    },
+                    y: 0,
+                    opacity: 1,
+                    duration: 0.6,
+                    stagger: 0.1
+                });
+                
+                lucide.createIcons();
+
+            } catch (e) { console.error(e); }
+        }
+        
+        loadContent();
+        
+        // Mobile Interactions
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                menu.classList.add('flex');
+                gsap.fromTo("#mobile-menu a", {y: 20, opacity: 0}, {y: 0, opacity: 1, stagger: 0.1});
             } else {
-                document.body.style.overflow = '';
+                menu.classList.add('hidden');
+                menu.classList.remove('flex');
             }
         }
-
-        if(mobileMenuBtn) mobileMenuBtn.addEventListener('click', toggleMenu);
-        if(closeMenuBtn) closeMenuBtn.addEventListener('click', toggleMenu);
+        
+        lucide.createIcons();
     </script>
 </body>
 </html>
