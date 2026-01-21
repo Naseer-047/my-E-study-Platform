@@ -81,23 +81,28 @@
 
     <!-- Hero Section -->
     <main class="flex-grow">
-        <section class="max-w-7xl mx-auto px-8 pt-24 pb-20 text-center">
-            <span class="inline-block py-1 px-3 rounded-full bg-gray-100 text-xs font-semibold tracking-wider text-gray-600 mb-6 uppercase">Internal Learning Platform</span>
-            <h1 class="text-5xl md:text-7xl font-serif font-medium text-classic-charcoal mb-6 leading-tight">
-                Learn once.<br>
-                <span class="text-gray-400 italic">Build forever.</span>
-            </h1>
-            <p class="text-lg md:text-xl text-gray-500 max-w-2xl mx-auto mb-10 font-light leading-relaxed">
-                A distraction-free environment designed for deep work and mastery. 
-                Focus on the concepts that matter.
-            </p>
-            <div class="flex justify-center gap-4">
-                <a href="frontend/courses.html" class="bg-classic-charcoal text-white px-8 py-3 rounded-md font-medium hover:bg-black transition-colors shadow-lg shadow-gray-200">
-                    Explore Courses
-                </a>
-                <a href="#categories" class="px-8 py-3 rounded-md font-medium text-gray-600 hover:bg-gray-100 transition-colors">
-                    View Tracks
-                </a>
+        <section class="relative bg-cover bg-center pt-24 pb-20 text-center" style="background-image: url('https://images.unsplash.com/photo-1507842217153-e21f40d08d29?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');">
+            <!-- Overlay -->
+            <div class="absolute inset-0 bg-white/90 backdrop-blur-sm"></div>
+            
+            <div class="relative z-10 max-w-7xl mx-auto px-8">
+                <span class="inline-block py-1 px-3 rounded-full bg-gray-100 text-xs font-semibold tracking-wider text-gray-600 mb-6 uppercase">Internal Learning Platform</span>
+                <h1 class="text-5xl md:text-7xl font-serif font-medium text-classic-charcoal mb-6 leading-tight">
+                    Learn once.<br>
+                    <span class="text-gray-400 italic">Build forever.</span>
+                </h1>
+                <p class="text-lg md:text-xl text-gray-500 max-w-2xl mx-auto mb-10 font-light leading-relaxed">
+                    A distraction-free environment designed for deep work and mastery. 
+                    Focus on the concepts that matter.
+                </p>
+                <div class="flex flex-col md:flex-row justify-center gap-4">
+                    <a href="frontend/courses.html" class="bg-classic-charcoal text-white px-8 py-3 rounded-md font-medium hover:bg-black transition-colors shadow-lg shadow-gray-200">
+                        Explore Courses
+                    </a>
+                    <a href="#categories" class="px-8 py-3 rounded-md font-medium text-gray-600 hover:bg-gray-100 transition-colors bg-white/50 border border-gray-200">
+                        View Tracks
+                    </a>
+                </div>
             </div>
         </section>
 
