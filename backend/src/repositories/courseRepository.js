@@ -1,59 +1,31 @@
-const fs = require('fs');
-const path = require('path');
-
-const DATA_FILE = path.join(__dirname, '../../data/courses.json');
+const Course = require('../models/Course');
 
 class CourseRepository {
-  constructor() {
-    this.courses = [];
-    this.loadData();
+  
+  async getAll() {
+    return await Course.find().sort({ createdAt: -1 });
   }
 
-  loadData() {
-    try {
-      const data = fs.readFileSync(DATA_FILE, 'utf8');
-      this.courses = JSON.parse(data);
-    } catch (err) {
-      console.error("Error loading course data:", err);
-      this.courses = [];
+  async getById(id) {
+    // Check if valid ObjectId to prevent CastError
+    if (id.match(/^[0-9a-fA-F]{24}$/)) {
+        return await Course.findById(id);
     }
+    return null;
   }
 
-  getAll() {
-    return this.courses;
+  async create(courseData) {
+    const course = new Course(courseData);
+    return await course.save();
   }
 
-  getById(id) {
-    return this.courses.find(c => c.id === id);
+  async update(id, updates) {
+    return await Course.findByIdAndUpdate(id, updates, { new: true });
   }
 
-  create(course) {
-    const newCourse = { ...course, id: course.id || `c${Date.now()}` };
-    this.courses.push(newCourse);
-    this.saveData();
-    return newCourse;
-  }
-
-  update(id, updates) {
-    const index = this.courses.findIndex(c => c.id === id);
-    if (index === -1) return null;
-    
-    this.courses[index] = { ...this.courses[index], ...updates };
-    this.saveData();
-    return this.courses[index];
-  }
-
-  delete(id) {
-    const index = this.courses.findIndex(c => c.id === id);
-    if (index === -1) return false;
-
-    this.courses.splice(index, 1);
-    this.saveData();
-    return true;
-  }
-
-  saveData() {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(this.courses, null, 2));
+  async delete(id) {
+    const result = await Course.findByIdAndDelete(id);
+    return !!result;
   }
 }
 

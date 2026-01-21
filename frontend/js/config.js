@@ -1,3 +1,4 @@
 const CONFIG = {
-    API_BASE_URL: 'http://localhost:5000/api'
+    // Live Backend URL (Render)
+    API_BASE_URL: 'https://my-e-study-platform.onrender.com/api'
 };

@@ -16,6 +16,14 @@ app.use(morgan('dev'));
 app.use(express.static(path.join(__dirname, '../frontend')));
 app.use('/admin', express.static(path.join(__dirname, '../admin')));
 
+// Database Connection
+const mongoose = require('mongoose');
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/academia_db';
+
+mongoose.connect(MONGO_URI)
+  .then(() => console.log('MongoDB Connected'))
+  .catch(err => console.error('MongoDB Connection Error:', err));
+
 // API Routes
 app.use('/api/courses', require('./src/routes/courses'));
 
