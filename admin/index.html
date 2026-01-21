@@ -474,11 +474,12 @@
                     alert('Course Saved Successfully!');
                     switchTab('courses'); // Go back to courses list
                 } else {
-                    alert('Failed to save changes.');
+                    const errorData = await res.json();
+                    alert(`Failed to save: ${errorData.message || res.statusText}`);
                 }
             } catch (err) {
                 console.error(err);
-                alert('Server error while saving.');
+                alert(`Server error: ${err.message}`);
             }
         }
         
