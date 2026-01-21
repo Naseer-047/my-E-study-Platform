@@ -374,12 +374,9 @@
 
         async function loadDashboardData() {
             try {
-                // Parallel fetch for speed
-                const [coursesRes, requestsRes, commentsRes] = await Promise.all([
-                    fetch(`${CONFIG.API_BASE_URL}/courses`),
-                    fetch(`${CONFIG.API_BASE_URL}/requests`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` } }),
-                    fetch(`${CONFIG.API_BASE_URL}/comments/all`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` } })
-                ]);
+                const coursesRes = await fetch(`${CONFIG.API_BASE_URL}/courses`);
+                const requestsRes = await fetch(`${CONFIG.API_BASE_URL}/requests`, { headers: { 'Authorization': `Bearer ${adminToken}` } });
+                const commentsRes = await fetch(`${CONFIG.API_BASE_URL}/comments/all`, { headers: { 'Authorization': `Bearer ${adminToken}` } });
 
                 if (requestsRes.status === 401 || commentsRes.status === 401) {
                     localStorage.removeItem('adminToken');
@@ -387,9 +384,13 @@
                     return;
                 }
 
-                const courses = await coursesRes.json();
-                const requests = await requestsRes.json();
-                const comments = await commentsRes.json();
+                const coursesData = await coursesRes.json();
+                const requestsData = await requestsRes.json();
+                const commentsData = await commentsRes.json();
+
+                const courses = Array.isArray(coursesData) ? coursesData : [];
+                const requests = Array.isArray(requestsData) ? requestsData : [];
+                const comments = Array.isArray(commentsData) ? commentsData : [];
 
                 // Stats Dashboard
                 document.getElementById('stat-modules').innerText = courses.length;
@@ -399,7 +400,7 @@
                 
                 // Fetch User Stats
                 const usersRes = await fetch(`${CONFIG.API_BASE_URL}/users`, {
-                     headers: { 'Authorization': `Bearer ${token}` }
+                     headers: { 'Authorization': `Bearer ${adminToken}` }
                 });
                 const users = await usersRes.json();
                 const pendingStud = users.filter(u => u.status === 'Pending').length;
@@ -419,7 +420,7 @@
                 requests.forEach(r => events.push({
                     icon: 'message-square',
                     color: 'neon-cyan',
-                    text: `${r.studentName} requested ${r.subject} notes`,
+                    text: `${r.studentName} requested ${r.subject || 'Material'} notes`,
                     time: new Date(r.createdAt)
                 }));
 

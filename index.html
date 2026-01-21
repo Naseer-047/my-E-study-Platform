@@ -590,20 +590,20 @@
                     grid.appendChild(card);
                 });
                 
+                lucide.createIcons();
+
                 // Animate Grid Items after insertion
-                ScrollTrigger.refresh();
                 gsap.to(".gs-reveal", {
                     scrollTrigger: {
                         trigger: "#featured-grid",
-                        start: "top 85%",
+                        start: "top 95%",
                     },
                     y: 0,
                     opacity: 1,
                     duration: 0.6,
-                    stagger: 0.1
+                    stagger: 0.1,
+                    onComplete: () => ScrollTrigger.refresh()
                 });
-                
-                lucide.createIcons();
 
             } catch (e) { console.error(e); }
         }

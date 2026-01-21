@@ -2,15 +2,7 @@ const express = require('express');
 const router = express.Router();
 const NoteRequest = require('../models/NoteRequest');
 
-// Admin Middleware (Reusable)
-const isAdmin = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.replace('Bearer ', '').trim() === 'admin-secret-123') {
-    next();
-  } else {
-    res.status(403).json({ message: 'Unauthorized: Admin access required' });
-  }
-};
+const { isAdmin } = require('../middleware/auth');
 
 // Public: Submit a request
 router.post('/', async (req, res) => {

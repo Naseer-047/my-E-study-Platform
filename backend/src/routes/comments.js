@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Comment = require('../models/Comment');
+const { isAdmin } = require('../middleware/auth');
 
 // Get comments for a video
 router.get('/:videoId', async (req, res) => {
@@ -24,7 +25,7 @@ router.post('/', async (req, res) => {
 });
 
 // Admin: Get all comments (Moderation)
-router.get('/all', async (req, res) => {
+router.get('/all', isAdmin, async (req, res) => {
   try {
     const comments = await Comment.find().sort({ createdAt: -1 });
     res.json(comments);
@@ -34,7 +35,7 @@ router.get('/all', async (req, res) => {
 });
 
 // Admin: Delete a comment
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', isAdmin, async (req, res) => {
   try {
     await Comment.findByIdAndDelete(req.params.id);
     res.status(204).send();
