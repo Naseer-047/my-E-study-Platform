@@ -2,7 +2,7 @@
   "name": "Team Curicity Learning",
   "short_name": "Curicity",
   "description": "High-performance E-Learning platform for modern students.",
-  "start_url": "/index.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#06b6d4",
