@@ -346,17 +346,20 @@
                 if(tbody) {
                     tbody.innerHTML = currentCourses.map(c => `
                         <tr class="border-b border-gray-50 last:border-0 hover:bg-gray-50">
+                            const id = c.id || c._id;
+                            return `
+                        <tr class="border-b border-gray-50 last:border-0 hover:bg-gray-50">
                             <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">${c.title}</td>
                             <td class="px-6 py-4 text-gray-500 whitespace-nowrap">${c.instructor}</td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="inline-flex items-center px-2 py-1 rounded bg-gray-100 text-xs font-medium text-gray-600">${c.category}</span>
                             </td>
                             <td class="px-6 py-4 text-right whitespace-nowrap">
-                                <button onclick="openCourseEditor('${c.id}')" class="text-blue-600 hover:text-blue-800 text-xs font-medium mr-3">Manage</button>
-                                <button onclick="deleteCourse('${c.id}')" class="text-red-500 hover:text-red-700 text-xs font-medium">Delete</button>
+                                <button onclick="openCourseEditor('${id}')" class="text-blue-600 hover:text-blue-800 text-xs font-medium mr-3">Manage</button>
+                                <button onclick="deleteCourse('${id}')" class="text-red-500 hover:text-red-700 text-xs font-medium">Delete</button>
                             </td>
                         </tr>
-                    `).join('');
+                    `}).join('');
                 }
                 lucide.createIcons();
             } catch (err) {
