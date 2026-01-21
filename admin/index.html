@@ -94,12 +94,12 @@
 
         <div class="p-4 border-t border-white/5">
             <div class="flex items-center gap-3 p-3 rounded-xl bg-white/5">
-                <div class="w-8 h-8 rounded-full bg-neon-cyan/20 flex items-center justify-center text-neon-cyan font-bold text-xs">
-                    AS
+                <div class="w-8 h-8 rounded-full bg-neon-cyan/20 flex items-center justify-center text-neon-cyan font-bold text-xs" id="admin-initials">
+                    NS
                 </div>
                 <div class="flex-1 min-w-0">
-                    <p class="text-sm font-bold text-white truncate">Amit Singh</p>
-                    <p class="text-xs text-gray-500 truncate">Chief Rep</p>
+                    <p class="text-sm font-bold text-white truncate" id="admin-user-display">Naseer</p>
+                    <p class="text-xs text-gray-500 truncate">System Admin</p>
                 </div>
                 <button onclick="logout()" class="text-gray-400 hover:text-white"><i data-lucide="log-out" class="w-4 h-4"></i></button>
             </div>
@@ -161,13 +161,13 @@
                             <i data-lucide="video" class="text-neon-blue w-6 h-6"></i>
                         </div>
                     </div>
-                     <!-- Stat 3 -->
+                    <!-- Stat 3 -->
                     <div class="glass-panel p-6 rounded-xl relative overflow-hidden group">
                         <div class="absolute -right-4 -top-4 w-24 h-24 bg-neon-cyan/10 rounded-full blur-xl group-hover:bg-neon-cyan/20 transition-colors"></div>
-                        <span class="text-gray-500 text-xs uppercase tracking-widest font-bold block mb-2">Pending Requests</span>
+                        <span class="text-gray-500 text-xs uppercase tracking-widest font-bold block mb-2">Pending (Stud / Req)</span>
                         <div class="flex justify-between items-end relative z-10">
-                            <span id="stat-requests" class="text-4xl font-display font-bold text-white">0</span>
-                            <i data-lucide="message-square" class="text-neon-cyan w-6 h-6"></i>
+                            <span id="stat-pending" class="text-4xl font-display font-bold text-white">0/0</span>
+                            <i data-lucide="bell" class="text-neon-cyan w-6 h-6"></i>
                         </div>
                     </div>
                 </div>
@@ -385,8 +385,20 @@
                 courses.forEach(c => totalVideos += (c.videos ? c.videos.length : 0));
                 document.getElementById('stat-videos').innerText = totalVideos;
                 
-                const pending = requests.filter(r => r.status === 'Pending').length;
-                document.getElementById('stat-requests').innerText = pending;
+                // Fetch User Stats
+                const usersRes = await fetch(`${CONFIG.API_BASE_URL}/users`, {
+                     headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const users = await usersRes.json();
+                const pendingStud = users.filter(u => u.status === 'Pending').length;
+                const pendingReq = requests.filter(r => r.status === 'Pending').length;
+                
+                document.getElementById('stat-pending').innerText = `${pendingStud}/${pendingReq}`;
+
+                // Update Sidebar Identity
+                const adminName = localStorage.getItem('adminName') || 'Naseer';
+                document.getElementById('admin-user-display').innerText = adminName;
+                document.getElementById('admin-initials').innerText = adminName.substring(0,2).toUpperCase();
 
                 // Activity Feed Build
                 const events = [];
@@ -751,6 +763,7 @@
 
         function logout() {
             localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminName');
             window.location.href = 'login.html';
         }
 

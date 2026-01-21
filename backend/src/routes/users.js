@@ -2,13 +2,24 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 
+const jwt = require('jsonwebtoken');
+const JWT_SECRET = process.env.JWT_SECRET || 'your_default_jwt_secret_123';
+
 // Middleware to check if admin
 const isAdmin = (req, res, next) => {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (token === 'admin-secret-123') { // Simplified for now to match current admin logic
-        return next();
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        if (!token) return res.status(401).json({ message: 'Unauthorized' });
+
+        const decoded = jwt.verify(token, JWT_SECRET);
+        if (decoded.role === 'Admin') {
+            req.user = decoded;
+            return next();
+        }
+        res.status(403).json({ message: 'Forbidden: Admin access only' });
+    } catch (err) {
+        res.status(401).json({ message: 'Token invalid or expired' });
     }
-    res.status(401).json({ message: 'Unauthorized' });
 };
 
 // Get all users (Admin only)

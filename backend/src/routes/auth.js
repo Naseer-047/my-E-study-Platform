@@ -23,18 +23,25 @@ router.post('/register', async (req, res) => {
     }
 });
 
-// Login Student
+// Login (Dynamic: Support Email or Username)
 router.post('/login', async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, username, password } = req.body;
         
-        const user = await User.findOne({ email });
+        // Find user by email or username
+        let user;
+        if (email) {
+            user = await User.findOne({ email });
+        } else if (username) {
+            user = await User.findOne({ name: username, role: 'Admin' });
+        }
+
         if (!user) return res.status(400).json({ message: 'Invalid credentials' });
 
         const isMatch = await user.comparePassword(password);
         if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
 
-        if (user.status !== 'Approved') {
+        if (user.role === 'Student' && user.status !== 'Approved') {
             return res.status(403).json({ 
                 status: user.status,
                 message: user.status === 'Pending' 
@@ -43,11 +50,31 @@ router.post('/login', async (req, res) => {
             });
         }
 
-        const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
+        const token = jwt.sign({ id: user._id, role: user.role, name: user.name }, JWT_SECRET, { expiresIn: '7d' });
         res.json({ token, user: { name: user.name, email: user.email, role: user.role } });
     } catch (err) {
         res.status(500).json({ message: 'Server error', error: err.message });
     }
 });
 
-module.exports = router;
+// Seed Admin
+const seedAdmin = async () => {
+    try {
+        const adminExists = await User.findOne({ name: 'Naseer', role: 'Admin' });
+        if (!adminExists) {
+            const admin = new User({
+                name: 'Naseer',
+                email: 'admin@academia.edu', // Placeholder
+                password: 'Naseer@123',
+                role: 'Admin',
+                status: 'Approved'
+            });
+            await admin.save();
+            console.log('Admin user (Naseer) seeded successfully.');
+        }
+    } catch (err) {
+        console.error('Admin seeding failed:', err);
+    }
+};
+
+module.exports = { router, seedAdmin };

@@ -26,8 +26,11 @@ mongoose.connect(MONGO_URI)
   .catch(err => console.error('MongoDB Connection Error:', err));
 
 // API Routes
-app.use('/api/auth', require('./src/routes/auth'));
+const { router: authRoutes, seedAdmin } = require('./src/routes/auth');
+app.use('/api/auth', authRoutes);
 app.use('/api/users', require('./src/routes/users'));
+
+seedAdmin();
 
 // Protection Middleware (Optional: Add for content safety)
 const isApprovedStudent = async (req, res, next) => {
@@ -35,11 +38,12 @@ const isApprovedStudent = async (req, res, next) => {
         const token = req.headers.authorization?.split(' ')[1];
         if (!token) return res.status(401).json({ message: 'No token provided' });
         
-        // Admin exception
-        if (token === 'admin-secret-123') return next();
-
         const jwt = require('jsonwebtoken');
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_default_jwt_secret_123');
+        
+        // Admin exception
+        if (decoded.role === 'Admin') return next();
+
         const User = require('./src/models/User');
         const user = await User.findById(decoded.id);
 

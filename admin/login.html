@@ -21,7 +21,7 @@
                     fontFamily: { sans: ['Outfit', 'sans-serif'], display: ['Space Grotesk', 'sans-serif'] },
                     colors: {
                         glass: { border: 'rgba(255, 255, 255, 0.1)' },
-                        neon: { red: '#EF4444', cyan: '#06B6D4' }
+                        neon: { red: '#EF4444', cyan: '#06B6D4', purple: '#A855F7' }
                     }
                 }
             }
@@ -47,9 +47,9 @@
         }
         .glass-input:focus { border-color: #EF4444; outline: none; box-shadow: 0 0 15px rgba(239, 68, 68, 0.3); }
         .scan-line {
-            width: 100%; height: 2px; bg-neon-red;
+            width: 100%; height: 2px;
             position: absolute; top: 0; left: 0;
-            background: rgba(239, 68, 68, 0.5);
+            background: #EF4444;
             box-shadow: 0 0 10px #EF4444;
             animation: scan 3s linear infinite;
             opacity: 0.5;
@@ -75,7 +75,17 @@
 
         <form id="loginForm" class="space-y-6">
             <div class="relative group">
-                <input type="password" id="password" class="glass-input w-full rounded-lg py-3 px-4 transition-all" placeholder="ACCESS CODE">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500 group-focus-within:text-neon-red transition-colors">
+                    <i data-lucide="user" class="w-4 h-4"></i>
+                </div>
+                <input type="text" id="username" class="glass-input w-full rounded-lg py-3 pl-12 pr-4 transition-all uppercase tracking-widest text-sm" placeholder="USERNAME" required>
+            </div>
+            
+            <div class="relative group">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500 group-focus-within:text-neon-red transition-colors">
+                    <i data-lucide="lock" class="w-4 h-4"></i>
+                </div>
+                <input type="password" id="password" class="glass-input w-full rounded-lg py-3 pl-12 pr-4 transition-all text-sm" placeholder="PASSWORD" required>
             </div>
             
             <button type="submit" class="w-full py-3 rounded-lg bg-neon-red hover:bg-red-600 text-black font-bold uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(239,68,68,0.3)] hover:shadow-[0_0_30px_rgba(239,68,68,0.5)]">
@@ -92,6 +102,7 @@
         </div>
     </div>
 
+    <script src="../frontend/js/config.js"></script>
     <script>
         lucide.createIcons();
 
@@ -105,19 +116,31 @@
         });
 
         // Logic
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const pass = document.getElementById('password').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
             const btn = e.target.querySelector('button');
+            const errorEl = document.getElementById('error');
             const originalText = btn.innerText;
 
             // Loading Effect
             btn.innerText = "VERIFYING...";
+            btn.disabled = true;
             btn.classList.add('opacity-70', 'cursor-not-allowed');
+            errorEl.style.opacity = '0';
             
-            setTimeout(() => {
-                if (pass === 'admin123') {
-                    localStorage.setItem('adminToken', 'admin-secret-123'); // Fix: Store raw token
+            try {
+                const res = await fetch(`${CONFIG.API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    localStorage.setItem('adminToken', data.token);
+                    localStorage.setItem('adminName', data.user.name);
                     
                     // Success Anim
                     btn.classList.replace('bg-neon-red', 'bg-green-500');
@@ -125,7 +148,8 @@
                     
                     setTimeout(() => window.location.href = 'index.html', 800);
                 } else {
-                    document.getElementById('error').style.opacity = '1';
+                    errorEl.innerText = data.message || "Invalid Security Credentials";
+                    errorEl.style.opacity = '1';
                     document.getElementById('password').value = '';
                     document.getElementById('password').focus();
                     
@@ -133,9 +157,16 @@
                     gsap.fromTo("#login-card", {x: -10}, {x: 10, duration: 0.1, repeat: 5, yoyo: true});
                     
                     btn.innerText = originalText;
+                    btn.disabled = false;
                     btn.classList.remove('opacity-70', 'cursor-not-allowed');
                 }
-            }, 800); // Fake network delay for effect
+            } catch (err) {
+                errorEl.innerText = "Quantum Link Failure (Check Connection)";
+                errorEl.style.opacity = '1';
+                btn.innerText = originalText;
+                btn.disabled = false;
+                btn.classList.remove('opacity-70', 'cursor-not-allowed');
+            }
         });
     </script>
 </body>
