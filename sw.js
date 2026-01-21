@@ -12,10 +12,7 @@ const ASSETS_TO_CACHE = [
   './admin/editor.html',
   './admin/hackathon-editor.html',
   './manifest.json',
-  './offline.html',
-  'https://cdn.tailwindcss.com',
-  'https://unpkg.com/lucide@latest',
-  'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js'
+  './offline.html'
 ];
 
 self.addEventListener('install', (event) => {
