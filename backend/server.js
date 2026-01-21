@@ -30,6 +30,7 @@ app.use('/api/courses', require('./src/routes/courses'));
 app.use('/api/hackathons', require('./src/routes/hackathons'));
 app.use('/api/requests', require('./src/routes/requests'));
 app.use('/api/comments', require('./src/routes/comments'));
+app.use('/api/alerts', require('./src/routes/alerts'));
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
