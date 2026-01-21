@@ -129,9 +129,9 @@
                         <div class="glass-panel p-6 rounded-xl border border-white/5">
                             <h4 class="text-white font-bold mb-4">Post a thought</h4>
                             <div class="space-y-4">
-                                <input type="text" id="comm-name" placeholder="e.g. Priyanshu" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white outline-none focus:border-neon-purple transition-all">
-                                <textarea id="comm-text" rows="3" placeholder="What's on your mind regarding this lesson?" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white outline-none focus:border-neon-purple transition-all resize-none"></textarea>
-                                <button onclick="postComment()" class="bg-gradient-to-r from-neon-blue to-neon-purple text-white px-6 py-2 rounded-lg font-medium hover:scale-105 transition-all">Post Discussion</button>
+                                <input type="text" id="comm-name" placeholder="e.g. Priyanshu" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white text-sm outline-none focus:border-neon-purple transition-all">
+                                <textarea id="comm-text" rows="2" placeholder="What's on your mind?" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white text-sm outline-none focus:border-neon-purple transition-all resize-none"></textarea>
+                                <button onclick="postComment()" class="w-full bg-gradient-to-r from-neon-blue to-neon-purple text-white px-6 py-2 rounded-lg font-bold text-sm hover:scale-[1.02] active:scale-95 transition-all">Post Discussion</button>
                             </div>
                         </div>
 
@@ -215,29 +215,42 @@
         }
 
         async function loadComments() {
+            // Try to find video ID if null
+            if(!currentVideoId) {
+                const player = document.getElementById('youtube-player');
+                if(player && player.src) {
+                    const match = player.src.match(/embed\/([^?]+)/);
+                    if(match) currentVideoId = match[1];
+                }
+            }
+
             if(!currentVideoId) return;
             const list = document.getElementById('comments-list');
-            list.innerHTML = `<div class="text-center py-8 text-gray-500 animate-pulse">Loading discussion...</div>`;
+            list.innerHTML = `<div class="text-center py-8 text-gray-500 animate-pulse text-xs">Loading discussion...</div>`;
             
             try {
                 const res = await fetch(`${CONFIG.API_BASE_URL}/comments/${currentVideoId}`);
+                if (!res.ok) throw new Error("API Error");
                 const comments = await res.json();
                 
-                list.innerHTML = comments.length ? '' : `<div class="text-center py-12 text-gray-600">No discussions yet. Be the first to start!</div>`;
+                list.innerHTML = comments.length ? '' : `<div class="text-center py-12 text-gray-600 text-sm">No discussions yet. Be the first to start!</div>`;
                 
                 comments.forEach(c => {
                     const div = document.createElement('div');
-                    div.className = "glass-panel p-4 rounded-xl border border-white/5 hover:bg-white/5 transition-colors";
+                    div.className = "glass-panel p-4 rounded-xl border border-white/5 hover:bg-white/5 transition-colors mb-3";
                     div.innerHTML = `
                         <div class="flex justify-between items-start mb-2">
-                            <span class="text-neon-cyan font-bold text-sm">${c.userName}</span>
-                            <span class="text-[10px] text-gray-600">${new Date(c.createdAt).toLocaleDateString()}</span>
+                            <span class="text-neon-cyan font-bold text-xs uppercase tracking-wider">${c.userName}</span>
+                            <span class="text-[9px] text-gray-600">${new Date(c.createdAt).toLocaleDateString()}</span>
                         </div>
                         <p class="text-gray-300 text-sm leading-relaxed">${c.text}</p>
                     `;
                     list.appendChild(div);
                 });
-            } catch(e) { console.error(e); }
+            } catch(e) { 
+                console.error(e); 
+                list.innerHTML = `<div class="text-center py-8 text-neon-red/50 text-xs">Could not load discussions. Please try again.</div>`;
+            }
         }
 
         async function postComment() {
@@ -272,19 +285,20 @@
         // Catch video changes from player.js
         const checkVideoTarget = setInterval(() => {
             const player = document.getElementById('youtube-player');
-            if(player && player.src && player.src.startsWith('http')) {
+            if(player && player.src && player.src.includes('embed/')) {
                 try {
-                    const url = new URL(player.src);
-                    const vId = url.pathname.split('/').pop();
+                    const match = player.src.match(/embed\/([^?]+)/);
+                    const vId = match ? match[1] : null;
                     if(vId && vId !== currentVideoId) {
                         currentVideoId = vId;
+                        // Auto-refresh if currently on discussion tab
                         if(!document.getElementById('discussion-content').classList.contains('hidden')) {
                             loadComments();
                         }
                     }
-                } catch(e) { /* Invalid URL - likely placeholder */ }
+                } catch(e) {}
             }
-        }, 1500);
+        }, 800);
     </script>
 </body>
 </html>
