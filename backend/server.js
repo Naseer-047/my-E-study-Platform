@@ -26,11 +26,20 @@ mongoose.connect(MONGO_URI)
   .catch(err => console.error('MongoDB Connection Error:', err));
 
 // API Routes
-app.use('/api/courses', require('./src/routes/courses'));
-app.use('/api/hackathons', require('./src/routes/hackathons'));
-app.use('/api/requests', require('./src/routes/requests'));
-app.use('/api/comments', require('./src/routes/comments'));
-app.use('/api/alerts', require('./src/routes/alerts'));
+const courseRoutes = require('./src/routes/courses');
+const hackathonRoutes = require('./src/routes/hackathons');
+const alertRoutes = require('./src/routes/alerts');
+const requestRoutes = require('./src/routes/requests');
+const commentRoutes = require('./src/routes/comments');
+const projectRoutes = require('./src/routes/projects');
+
+// Use Routes
+app.use('/api/courses', courseRoutes);
+app.use('/api/hackathons', hackathonRoutes);
+app.use('/api/alerts', alertRoutes);
+app.use('/api/requests', requestRoutes);
+app.use('/api/comments', commentRoutes);
+app.use('/api/projects', projectRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
