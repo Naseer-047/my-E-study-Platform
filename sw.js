@@ -1,4 +1,4 @@
-const CACHE_NAME = 'academia-v5';
+const CACHE_NAME = 'academia-v6';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -8,6 +8,7 @@ const ASSETS_TO_CACHE = [
   './frontend/js/notifications.js',
   './frontend/js/player.js',
   './admin/index.html',
+  './admin/login.html',
   './admin/editor.html',
   './admin/hackathon-editor.html',
   './manifest.json',

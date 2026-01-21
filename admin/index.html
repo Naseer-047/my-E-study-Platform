@@ -336,6 +336,11 @@
     <script src="../frontend/js/config.js"></script>
     <script src="../frontend/js/notifications.js"></script>
     <script>
+        // Admin Auth Guard
+        if (!localStorage.getItem('adminAuth')) {
+            window.location.href = 'login.html';
+        }
+        
         // Init
         lucide.createIcons();
         loadDashboardData();
@@ -698,7 +703,8 @@
         }
 
         function logout() {
-            window.location.href = '../index.html';
+            localStorage.removeItem('adminAuth');
+            window.location.href = 'login.html';
         }
 
         async function loadAdminUsers() {
