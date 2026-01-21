@@ -1024,13 +1024,15 @@
                                     </div>
                                     <span class="text-xs text-gray-500 ml-1">${p.teamMembers.split(',').length} Members</span>
                                 </div>
-                // Animate
-                gsap.from("#notices-grid .glass-panel", {
-                    scrollTrigger: { trigger: "#notices-grid", start: "top 90%" },
-                    y: 20, opacity: 0, stagger: 0.1, duration: 0.5
+                                <a href="${p.link}" target="_blank" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-neon-gold hover:text-black transition-all"><i data-lucide="external-link" class="w-4 h-4"></i></a>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(el);
                 });
-
-            } catch(e) { console.error("Notices failed", e); }
+                lucide.createIcons();
+                ScrollTrigger.refresh();
+            } catch(e) { console.error(e); }
         }
 
         loadContent();
