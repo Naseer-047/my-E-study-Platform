@@ -26,7 +26,7 @@
         }
     </script>
     <style>
-        body { background: #0f172a; color: white; min-h-screen; display: flex; flex-direction: column; }
+        body { background: #0f172a; color: white; min-height: 100vh; display: flex; flex-direction: column; }
         .ambient-bg { position: fixed; inset: 0; z-index: -1; background: radial-gradient(circle at 10% 10%, rgba(168, 85, 247, 0.05), transparent 40%); }
         .glass-panel {
             background: rgba(255, 255, 255, 0.03);
@@ -246,14 +246,8 @@
                 videos: videos
             };
             
-            let token = localStorage.getItem('adminToken') || '';
-            // Auto-fix: Strip 'Bearer ' if it's accidentally stored in the variable
-            if(token.includes('Bearer ')) token = token.replace('Bearer ', '').trim();
-
             try {
                 const headers = { 'Content-Type': 'application/json' };
-                if(token) headers['Authorization'] = `Bearer ${token}`;
-
                 const res = await fetch(url, { method, headers, body: JSON.stringify(payload) });
                 
                 if(res.ok) {

@@ -26,7 +26,7 @@
         }
     </script>
     <style>
-        body { background: #0f172a; color: white; min-h-screen; display: flex; flex-direction: column; }
+        body { background: #0f172a; color: white; min-height: 100vh; display: flex; flex-direction: column; }
         .ambient-bg { position: fixed; inset: 0; z-index: -1; background: radial-gradient(circle at 10% 10%, rgba(16, 185, 129, 0.05), transparent 40%); }
         .glass-panel {
             background: rgba(255, 255, 255, 0.03);
@@ -179,15 +179,11 @@
                 description: document.getElementById('description').value
             };
 
-            let token = localStorage.getItem('adminToken') || '';
-            if(token.includes('Bearer ')) token = token.replace('Bearer ', '').trim();
-
             try {
                 const res = await fetch(url, {
                     method,
                     headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(payload)
                 });

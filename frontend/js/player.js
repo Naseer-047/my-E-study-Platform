@@ -1,28 +1,13 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const courseId = urlParams.get('id');
-    const token = localStorage.getItem('studentToken');
-
-    if (!token) {
-        window.location.href = '../login.html';
-        return;
-    }
-
     if (!courseId) {
         window.location.href = 'courses.html';
         return;
     }
 
     try {
-        const response = await fetch(`${CONFIG.API_BASE_URL}/courses/${courseId}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.removeItem('studentToken');
-            window.location.href = '../login.html';
-            return;
-        }
+        const response = await fetch(`${CONFIG.API_BASE_URL}/courses/${courseId}`);
 
         if (!response.ok) throw new Error('Course not found');
         const course = await response.json();
