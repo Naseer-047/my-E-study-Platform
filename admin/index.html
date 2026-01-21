@@ -344,10 +344,9 @@
                 // Update Course Table (if tab is present)
                 const tbody = document.getElementById('courseTableBody');
                 if(tbody) {
-                    tbody.innerHTML = currentCourses.map(c => `
-                        <tr class="border-b border-gray-50 last:border-0 hover:bg-gray-50">
-                            const id = c.id || c._id;
-                            return `
+                    tbody.innerHTML = currentCourses.map(c => {
+                        const id = c.id || c._id;
+                        return `
                         <tr class="border-b border-gray-50 last:border-0 hover:bg-gray-50">
                             <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">${c.title}</td>
                             <td class="px-6 py-4 text-gray-500 whitespace-nowrap">${c.instructor}</td>
@@ -379,7 +378,7 @@
         /* --- DEDICATED EDITOR LOGIC --- */
 
         function openCourseEditor(courseId) {
-            const course = currentCourses.find(c => c.id === courseId);
+            const course = currentCourses.find(c => (c.id === courseId) || (c._id === courseId));
             if (!course) return;
 
             // Switch View
@@ -387,7 +386,7 @@
 
             // Populate Form
             document.getElementById('editorCourseTitle').textContent = course.title;
-            document.getElementById('editorId').value = course.id;
+            document.getElementById('editorId').value = course.id || course._id;
             document.getElementById('editorTitle').value = course.title || '';
             document.getElementById('editorCategory').value = course.category || '';
             document.getElementById('editorInstructor').value = course.instructor || '';
