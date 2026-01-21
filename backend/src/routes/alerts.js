@@ -14,12 +14,6 @@ router.get('/', async (req, res) => {
 
 // Create new alert (Admin Protected)
 router.post('/', async (req, res) => {
-  // Simple protection based on shared secret for now to match other routes
-  const token = req.headers.authorization;
-  if (!token || !token.includes('admin-secret-123')) {
-    return res.status(403).json({ message: "Forbidden" });
-  }
-
   try {
     const newAlert = new Alert(req.body);
     const saved = await newAlert.save();
@@ -31,11 +25,6 @@ router.post('/', async (req, res) => {
 
 // Dismiss alert (Admin Protected)
 router.put('/:id', async (req, res) => {
-  const token = req.headers.authorization;
-  if (!token || !token.includes('admin-secret-123')) {
-    return res.status(403).json({ message: "Forbidden" });
-  }
-
   try {
     const updated = await Alert.findByIdAndUpdate(req.params.id, { active: false }, { new: true });
     res.json(updated);

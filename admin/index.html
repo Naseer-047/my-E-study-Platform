@@ -84,9 +84,6 @@
             <button onclick="switchTab('discussions')" class="nav-link w-full" id="btn-discussions">
                 <i data-lucide="message-circle" class="w-5 h-5"></i> Discussions
             </button>
-            <button onclick="switchTab('users')" class="nav-link w-full" id="btn-users">
-                <i data-lucide="users" class="w-5 h-5"></i> Manage Users
-            </button>
             <button onclick="openBroadcastModal()" class="nav-link w-full text-neon-red/80 hover:text-neon-red">
                 <i data-lucide="radio" class="w-5 h-5"></i> Broadcast
             </button>
@@ -266,28 +263,6 @@
                 </div>
             </div>
 
-            <div id="view-users" class="hidden space-y-6">
-                <div class="flex flex-col md:flex-row justify-between items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/5">
-                    <h3 class="text-white font-bold text-lg">Student Management</h3>
-                    <p class="text-xs text-gray-500">Approve or Reject new student registrations</p>
-                </div>
-
-                <div class="glass-panel rounded-xl overflow-hidden overflow-x-auto">
-                    <table class="w-full text-sm min-w-[600px]">
-                        <thead>
-                            <tr class="text-gray-500 text-xs uppercase tracking-wider bg-white/5 border-b border-white/5">
-                                <th class="py-4 px-6 font-medium text-left">Student Info</th>
-                                <th class="py-4 px-6 font-medium text-left">Status</th>
-                                <th class="py-4 px-6 font-medium text-left">Joined Date</th>
-                                <th class="py-4 px-6 font-medium text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="users-table-body" class="divide-y divide-white/5">
-                            <!-- Injected -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
     </main>
     
     <!-- Broadcast Modal -->
@@ -361,12 +336,6 @@
     <script src="../frontend/js/config.js"></script>
     <script src="../frontend/js/notifications.js"></script>
     <script>
-        // Auth Guard
-        const adminToken = localStorage.getItem('adminToken');
-        if (!adminToken) {
-            window.location.href = 'login.html';
-        }
-
         // Init
         lucide.createIcons();
         loadDashboardData();
@@ -375,14 +344,8 @@
         async function loadDashboardData() {
             try {
                 const coursesRes = await fetch(`${CONFIG.API_BASE_URL}/courses`);
-                const requestsRes = await fetch(`${CONFIG.API_BASE_URL}/requests`, { headers: { 'Authorization': `Bearer ${adminToken}` } });
-                const commentsRes = await fetch(`${CONFIG.API_BASE_URL}/comments/all`, { headers: { 'Authorization': `Bearer ${adminToken}` } });
-
-                if (requestsRes.status === 401 || commentsRes.status === 401) {
-                    localStorage.removeItem('adminToken');
-                    window.location.href = 'login.html';
-                    return;
-                }
+                const requestsRes = await fetch(`${CONFIG.API_BASE_URL}/requests`);
+                const commentsRes = await fetch(`${CONFIG.API_BASE_URL}/comments/all`);
 
                 const coursesData = await coursesRes.json();
                 const requestsData = await requestsRes.json();
@@ -398,15 +361,8 @@
                 courses.forEach(c => totalVideos += (c.videos ? c.videos.length : 0));
                 document.getElementById('stat-videos').innerText = totalVideos;
                 
-                // Fetch User Stats
-                const usersRes = await fetch(`${CONFIG.API_BASE_URL}/users`, {
-                     headers: { 'Authorization': `Bearer ${adminToken}` }
-                });
-                const users = await usersRes.json();
-                const pendingStud = users.filter(u => u.status === 'Pending').length;
                 const pendingReq = requests.filter(r => r.status === 'Pending').length;
-                
-                document.getElementById('stat-pending').innerText = `${pendingStud}/${pendingReq}`;
+                document.getElementById('stat-pending').innerText = `${pendingReq}`;
 
                 // Update Sidebar Identity
                 const adminName = localStorage.getItem('adminName') || 'Naseer';
@@ -594,16 +550,9 @@
         }
 
         async function deleteHackathon(id) {
-             if(confirm("Delete this hackathon?")) {
-                 let token = localStorage.getItem('adminToken') || '';
-                 if(token.includes('Bearer ')) token = token.replace('Bearer ', '').trim();
-                 
-                 const headers = {};
-                 if(token) headers['Authorization'] = `Bearer ${token}`;
-
+            if(confirm("Delete this hackathon?")) {
                  await fetch(`${CONFIG.API_BASE_URL}/hackathons/${id}`, { 
-                     method: 'DELETE',
-                     headers: headers
+                     method: 'DELETE'
                  });
                  loadAdminHackathons();
              }
@@ -612,15 +561,8 @@
         // Delete Logic
         async function deleteCourse(id) {
              if(confirm("Delete this module?")) {
-                 let token = localStorage.getItem('adminToken') || '';
-                 if(token.includes('Bearer ')) token = token.replace('Bearer ', '').trim();
-
-                 const headers = {};
-                 if(token) headers['Authorization'] = `Bearer ${token}`;
-
                  await fetch(`${CONFIG.API_BASE_URL}/courses/${id}`, { 
-                     method: 'DELETE',
-                     headers: headers
+                     method: 'DELETE'
                  });
                  loadAdminCourses();
              }
@@ -634,15 +576,12 @@
         async function sendBroadcast() {
             const msg = document.getElementById('broadcast-msg').value;
              if(msg) {
-                let token = localStorage.getItem('adminToken') || '';
-                if(token.includes('Bearer ')) token = token.replace('Bearer ', '').trim();
                 
                 try {
                     const res = await fetch(`${CONFIG.API_BASE_URL}/alerts`, {
                         method: 'POST',
                         headers: { 
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
+                            'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({ message: msg })
                     });
@@ -656,9 +595,7 @@
         }
         async function loadAdminRequests() {
              try {
-                const res = await fetch(`${CONFIG.API_BASE_URL}/requests`, {
-                    headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
-                });
+                const res = await fetch(`${CONFIG.API_BASE_URL}/requests`);
                 const data = await res.json();
                 const tbody = document.getElementById('requests-table-body');
                 tbody.innerHTML = '';
@@ -695,14 +632,10 @@
         }
 
         async function updateRequestStatus(id, status) {
-            let token = localStorage.getItem('adminToken') || '';
-            if(token.includes('Bearer ')) token = token.replace('Bearer ', '').trim();
-            
             await fetch(`${CONFIG.API_BASE_URL}/requests/${id}`, {
                 method: 'PUT',
                 headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ status })
             });
@@ -711,12 +644,8 @@
 
         async function deleteRequest(id) {
             if(confirm("Dismiss this request?")) {
-                let token = localStorage.getItem('adminToken') || '';
-                if(token.includes('Bearer ')) token = token.replace('Bearer ', '').trim();
-                
                 await fetch(`${CONFIG.API_BASE_URL}/requests/${id}`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    method: 'DELETE'
                 });
                 loadAdminRequests();
             }
@@ -727,9 +656,7 @@
                 // Fetching all comments requires a new route or query, assuming we can get them all via /api/comments/all
                 // Let's create a route for 'all' in the backend later, or just pull based on course.
                 // For now, let's fetch all 
-                const res = await fetch(`${CONFIG.API_BASE_URL}/comments/all`, {
-                    headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
-                });
+                const res = await fetch(`${CONFIG.API_BASE_URL}/comments/all`);
                 const comments = await res.json();
                 const container = document.getElementById('admin-comments-list');
                 container.innerHTML = '';
@@ -763,81 +690,23 @@
 
         async function deleteAdminComment(id) {
             if(confirm("Delete this discussion post?")) {
-                let token = localStorage.getItem('adminToken') || '';
-                if(token.includes('Bearer ')) token = token.replace('Bearer ', '').trim();
-                
                 await fetch(`${CONFIG.API_BASE_URL}/comments/${id}`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    method: 'DELETE'
                 });
                 loadAdminDiscussions();
             }
         }
 
         function logout() {
-            localStorage.removeItem('adminToken');
-            localStorage.removeItem('adminName');
-            window.location.href = 'login.html';
+            window.location.href = '../index.html';
         }
 
         async function loadAdminUsers() {
-            try {
-                let token = localStorage.getItem('adminToken') || '';
-                if(token.includes('Bearer ')) token = token.replace('Bearer ', '').trim();
-
-                const res = await fetch(`${CONFIG.API_BASE_URL}/users`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const users = await res.json();
-                
-                const tbody = document.getElementById('users-table-body');
-                tbody.innerHTML = '';
-
-                users.forEach(u => {
-                    const statusClass = u.status === 'Approved' ? 'bg-neon-green/10 text-neon-green' : 
-                                      u.status === 'Pending' ? 'bg-yellow-500/10 text-yellow-500' : 'bg-red-500/10 text-red-500';
-                    const tr = document.createElement('tr');
-                    tr.className = "hover:bg-white/5 transition-colors";
-                    tr.innerHTML = `
-                        <td class="py-4 px-6">
-                            <div class="font-bold text-white">${u.name}</div>
-                            <div class="text-xs text-gray-500">${u.email}</div>
-                        </td>
-                        <td class="py-4 px-6">
-                            <span class="px-2 py-1 rounded text-[10px] font-bold uppercase ${statusClass}">${u.status}</span>
-                        </td>
-                        <td class="py-4 px-6 text-gray-400 text-xs">
-                            ${new Date(u.createdAt).toLocaleDateString()}
-                        </td>
-                        <td class="py-4 px-6 text-right space-x-2">
-                            ${u.status !== 'Approved' ? `
-                                <button onclick="updateUserStatus('${u._id}', 'Approved')" class="text-neon-green hover:underline text-xs">Approve</button>
-                            ` : ''}
-                            ${u.status !== 'Rejected' ? `
-                                <button onclick="updateUserStatus('${u._id}', 'Rejected')" class="text-red-500 hover:underline text-xs">Reject</button>
-                            ` : ''}
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            } catch (err) { console.error(err); }
+            // Deprecated
         }
 
         async function updateUserStatus(userId, status) {
-            try {
-                let token = localStorage.getItem('adminToken') || '';
-                if(token.includes('Bearer ')) token = token.replace('Bearer ', '').trim();
-
-                const res = await fetch(`${CONFIG.API_BASE_URL}/users/${userId}/status`, {
-                    method: 'PUT',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ status })
-                });
-                if (res.ok) loadAdminUsers();
-            } catch (err) { console.error(err); }
+            // Deprecated
         }
     </script>
 </body>

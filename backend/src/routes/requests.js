@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const NoteRequest = require('../models/NoteRequest');
 
-const { isAdmin } = require('../middleware/auth');
+
 
 // Public: Submit a request
 router.post('/', async (req, res) => {
@@ -16,7 +16,7 @@ router.post('/', async (req, res) => {
 });
 
 // Admin: Get all requests
-router.get('/', isAdmin, async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const requests = await NoteRequest.find().sort({ createdAt: -1 });
     res.json(requests);
@@ -26,7 +26,7 @@ router.get('/', isAdmin, async (req, res) => {
 });
 
 // Admin: Update status (e.g., mark as Fulfilled)
-router.put('/:id', isAdmin, async (req, res) => {
+router.put('/:id', async (req, res) => {
   try {
     const updated = await NoteRequest.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.json(updated);
@@ -36,7 +36,7 @@ router.put('/:id', isAdmin, async (req, res) => {
 });
 
 // Admin: Delete/Dismiss request
-router.delete('/:id', isAdmin, async (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
     await NoteRequest.findByIdAndDelete(req.params.id);
     res.status(204).send();
