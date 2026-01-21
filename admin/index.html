@@ -491,11 +491,27 @@
             document.getElementById('broadcast-modal').classList.remove('hidden');
             document.getElementById('broadcast-msg').value = '';
         }
-        function sendBroadcast() {
+        async function sendBroadcast() {
             const msg = document.getElementById('broadcast-msg').value;
-            if(window.sendSystemNotification && msg) {
-                window.sendSystemNotification(msg);
-                document.getElementById('broadcast-modal').classList.add('hidden');
+             if(msg) {
+                let token = localStorage.getItem('adminToken') || '';
+                if(token.includes('Bearer ')) token = token.replace('Bearer ', '').trim();
+                
+                try {
+                    const res = await fetch(`${CONFIG.API_BASE_URL}/alerts`, {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ message: msg })
+                    });
+                    
+                    if(res.ok) {
+                        alert("Broadcast sent successfully!");
+                        document.getElementById('broadcast-modal').classList.add('hidden');
+                    }
+                } catch(e) { console.error(e); }
             }
         }
         async function loadAdminRequests() {

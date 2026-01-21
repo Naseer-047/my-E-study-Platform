@@ -8,6 +8,7 @@
 
 const NOTIFICATION_KEY = 'academia_notifications';
 const COURSE_CACHE_KEY = 'academia_course_cache';
+const ALERT_CACHE_KEY = 'academia_alert_seen_ids';
 
 class NotificationSystem {
     constructor() {
@@ -27,6 +28,7 @@ class NotificationSystem {
         this.injectStyles();
         this.renderBell();
         this.startPolling();
+        this.startAlertPolling();
         this.listenForBroadcasts();
         
         // Expose global for Admin Panel
@@ -301,6 +303,36 @@ class NotificationSystem {
 
         check();
         setInterval(check, 10000); // Check every 10s
+    }
+
+    async startAlertPolling() {
+        if(typeof CONFIG === 'undefined') return;
+        
+        const checkAlerts = async () => {
+            try {
+                const res = await fetch(`${CONFIG.API_BASE_URL}/alerts`);
+                const alerts = await res.json();
+                
+                let seenIds = JSON.parse(localStorage.getItem(ALERT_CACHE_KEY)) || [];
+                let hasNew = false;
+
+                alerts.forEach(alert => {
+                    const id = alert._id || alert.id;
+                    if (!seenIds.includes(id)) {
+                        this.addNotification(alert.type || 'Admin Alert', alert.message);
+                        seenIds.push(id);
+                        hasNew = true;
+                    }
+                });
+
+                if (hasNew) {
+                    localStorage.setItem(ALERT_CACHE_KEY, JSON.stringify(seenIds));
+                }
+            } catch(e) { console.error("Alert polling error", e); }
+        };
+
+        checkAlerts();
+        setInterval(checkAlerts, 15000); // Check every 15s
     }
 
     listenForBroadcasts() {
