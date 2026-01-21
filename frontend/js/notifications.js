@@ -248,7 +248,6 @@ class NotificationSystem {
     // --- POLLING & EVENTS ---
 
     async startPolling() {
-        // Poll for courses every 30s
         if(typeof CONFIG === 'undefined') return;
         
         const check = async () => {
@@ -256,23 +255,52 @@ class NotificationSystem {
                 const res = await fetch(`${CONFIG.API_BASE_URL}/courses`);
                 const courses = await res.json();
                 
-                const cached = JSON.parse(localStorage.getItem(COURSE_CACHE_KEY)) || [];
-                
-                if(cached.length > 0 && courses.length > cached.length) {
-                    // New Course Detected
-                    const newCount = courses.length - cached.length;
-                    this.addNotification('New Content', `${newCount} new module(s) added to the library.`);
+                // Load previous state: { [id]: updatedAtString, ... }
+                // We handle legacy array format migration gracefully
+                let cachedState = {};
+                try {
+                     const raw = JSON.parse(localStorage.getItem(COURSE_CACHE_KEY));
+                     if(Array.isArray(raw)) {
+                         // Migrate legacy array to object (assume now as baseline)
+                         raw.forEach(id => cachedState[id] = new Date().toISOString()); 
+                     } else {
+                         cachedState = raw || {};
+                     }
+                } catch(e) {}
+
+                const newState = {};
+                let hasChanges = false;
+
+                courses.forEach(c => {
+                    const id = c.id || c._id;
+                    const updated = c.updatedAt || c.createdAt || new Date().toISOString(); // Fallback
+                    
+                    newState[id] = updated;
+
+                    if (!cachedState[id]) {
+                        // NEW COURSE (Only warn if we had a cache, i.e., not first load)
+                        if (Object.keys(cachedState).length > 0) {
+                             this.addNotification('New Content', `New module added: "${c.title}"`);
+                        }
+                    } else if (cachedState[id] !== updated) {
+                        // UPDATED COURSE
+                        // Check time difference to avoid spam on initial migration
+                        if (new Date(updated) > new Date(cachedState[id])) {
+                             this.addNotification('Course Update', `Module "${c.title}" has been updated.`);
+                        }
+                    }
+                });
+
+                // Update Cache
+                if (courses.length > 0) {
+                     localStorage.setItem(COURSE_CACHE_KEY, JSON.stringify(newState));
                 }
-                
-                // Diff specific logic could go here (e.g. check modifiedAt)
-                // For now, simpler is better.
-                
-                localStorage.setItem(COURSE_CACHE_KEY, JSON.stringify(courses.map(c => c.id || c._id)));
-            } catch(e) {}
+
+            } catch(e) { console.error("Polling error", e); }
         };
 
         check();
-        setInterval(check, 30000);
+        setInterval(check, 10000); // Check every 10s
     }
 
     listenForBroadcasts() {

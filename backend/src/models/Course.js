@@ -19,7 +19,7 @@ const CourseSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   }
-});
+}, { timestamps: true });
 
 // Calculate totalVideos before saving, just in case
 CourseSchema.pre('save', function(next) {
