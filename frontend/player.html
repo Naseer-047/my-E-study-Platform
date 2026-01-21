@@ -165,6 +165,11 @@
     <div id="mobile-sidebar-overlay" class="fixed inset-0 bg-black/80 z-20 hidden backdrop-blur-sm md:hidden" onclick="toggleMobileSidebar()"></div>
 
     <script>
+        // Auth Guard
+        if (!localStorage.getItem('studentToken')) {
+            window.location.href = '../login.html';
+        }
+
         const sidebar = document.querySelector('aside');
         const overlay = document.getElementById('mobile-sidebar-overlay');
         const btn = document.getElementById('mobile-menu-btn');

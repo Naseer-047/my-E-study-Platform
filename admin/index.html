@@ -361,6 +361,12 @@
     <script src="../frontend/js/config.js"></script>
     <script src="../frontend/js/notifications.js"></script>
     <script>
+        // Auth Guard
+        const adminToken = localStorage.getItem('adminToken');
+        if (!adminToken) {
+            window.location.href = 'login.html';
+        }
+
         // Init
         lucide.createIcons();
         loadDashboardData();
@@ -374,6 +380,12 @@
                     fetch(`${CONFIG.API_BASE_URL}/requests`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` } }),
                     fetch(`${CONFIG.API_BASE_URL}/comments/all`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` } })
                 ]);
+
+                if (requestsRes.status === 401 || commentsRes.status === 401) {
+                    localStorage.removeItem('adminToken');
+                    window.location.href = 'login.html';
+                    return;
+                }
 
                 const courses = await coursesRes.json();
                 const requests = await requestsRes.json();
