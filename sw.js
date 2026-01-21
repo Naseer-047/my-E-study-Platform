@@ -1,4 +1,4 @@
-const CACHE_NAME = 'academia-v1';
+const CACHE_NAME = 'academia-v2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -11,6 +11,8 @@ const ASSETS_TO_CACHE = [
   './frontend/js/player.js',
   './admin/index.html',
   './admin/login.html',
+  './admin/editor.html',
+  './admin/hackathon-editor.html',
   './manifest.json',
   './offline.html',
   'https://cdn.tailwindcss.com',
