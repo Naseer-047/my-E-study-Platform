@@ -1,14 +1,18 @@
-const CACHE_NAME = 'curicity-v1';
+const CACHE_NAME = 'academia-v1';
 const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/courses.html',
-  '/frontend/player.html',
-  '/frontend/js/config.js',
-  '/frontend/js/notifications.js',
-  '/frontend/js/player.js',
-  '/manifest.json',
-  '/offline.html',
+  './',
+  './index.html',
+  './login.html',
+  './signup.html',
+  './frontend/courses.html',
+  './frontend/player.html',
+  './frontend/js/config.js',
+  './frontend/js/notifications.js',
+  './frontend/js/player.js',
+  './admin/index.html',
+  './admin/login.html',
+  './manifest.json',
+  './offline.html',
   'https://cdn.tailwindcss.com',
   'https://unpkg.com/lucide@latest',
   'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js'
@@ -61,7 +65,7 @@ self.addEventListener('fetch', (event) => {
         
         // Show offline fallback for navigation requests
         if (event.request.mode === 'navigate') {
-          return caches.match('/offline.html');
+          return caches.match('./offline.html');
         }
       });
 
