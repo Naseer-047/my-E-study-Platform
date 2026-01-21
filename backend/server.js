@@ -52,9 +52,9 @@ const isApprovedStudent = async (req, res, next) => {
 
 app.use('/api/courses', isApprovedStudent, require('./src/routes/courses'));
 app.use('/api/hackathons', isApprovedStudent, require('./src/routes/hackathons'));
-app.use('/api/requests', require('./src/routes/requests'));
-app.use('/api/comments', require('./src/routes/comments'));
-app.use('/api/alerts', require('./src/routes/alerts'));
+app.use('/api/requests', isApprovedStudent, require('./src/routes/requests'));
+app.use('/api/comments', isApprovedStudent, require('./src/routes/comments'));
+app.use('/api/alerts', isApprovedStudent, require('./src/routes/alerts'));
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

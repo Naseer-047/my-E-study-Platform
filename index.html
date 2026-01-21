@@ -164,11 +164,12 @@
             </a>
             
             <!-- Desktop Links -->
-            <div class="hidden md:flex gap-8">
-                <a href="#stats" class="text-sm font-medium text-gray-300 hover:text-white transition-colors nav-item opacity-0">Impact</a>
-                <a href="frontend/courses.html" class="text-sm font-medium text-gray-300 hover:text-white transition-colors nav-item opacity-0">Library</a>
-                <a href="frontend/notes.html" class="text-sm font-medium text-gray-300 hover:text-white transition-colors nav-item opacity-0">Notes</a>
-                <a href="admin/login.html" class="text-sm font-medium text-neon-cyan hover:text-neon-cyan/80 transition-colors nav-item opacity-0">Admin</a>
+            <div class="hidden md:flex items-center gap-8 nav-item opacity-0">
+                <a href="#stats" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Impact</a>
+                <a href="frontend/courses.html" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Library</a>
+                <a href="login.html" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Log In</a>
+                <a href="signup.html" class="glass-button px-5 py-2 rounded-full text-sm font-bold text-white">Join Now</a>
+                <a href="admin/login.html" class="text-[10px] uppercase tracking-tighter text-gray-500 hover:text-neon-cyan transition-colors">Admin</a>
             </div>
 
             <!-- Mobile Menu Btn -->
@@ -181,9 +182,12 @@
     <div id="mobile-menu" class="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl hidden flex-col items-center justify-center space-y-8">
         <a href="index.html" class="text-3xl font-display font-bold text-white">Home</a>
         <a href="frontend/courses.html" class="text-3xl font-display font-bold text-gray-400">Library</a>
-        <a href="frontend/notes.html" class="text-3xl font-display font-bold text-gray-400">Notes</a>
-        <button onclick="installApp()" class="px-6 py-2 rounded-full border border-neon-cyan/50 text-neon-cyan text-sm font-bold hover:bg-neon-cyan/10 transition-all">Install Mobile App</button>
-        <a href="admin/login.html" class="text-xl font-medium text-neon-purple pt-8">Admin Access</a>
+        <div class="flex flex-col gap-4 w-full px-12">
+            <a href="login.html" class="w-full py-4 rounded-xl glass-panel text-center font-bold text-white">Log In</a>
+            <a href="signup.html" class="w-full py-4 rounded-xl bg-neon-purple text-center font-bold text-white shadow-lg shadow-neon-purple/20">Create Account</a>
+        </div>
+        <button onclick="installApp()" class="text-neon-cyan text-sm font-bold">Install Mobile App</button>
+        <a href="admin/login.html" class="text-xs text-gray-600 pt-4">Admin Access</a>
         <button onclick="toggleMobileMenu()" class="absolute top-8 right-8 text-gray-500 hover:text-white">
             <i data-lucide="x" class="w-8 h-8"></i>
         </button>
@@ -646,6 +650,21 @@
 
         loadContent();
         loadHackathons();
+
+        // Auth State Awareness
+        window.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('studentToken');
+            if (token) {
+                const navLinks = document.querySelector('.hidden.md\\:flex.items-center.gap-8');
+                if (navLinks) {
+                    navLinks.innerHTML = `
+                        <a href="#stats" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Impact</a>
+                        <a href="frontend/courses.html" class="text-sm font-medium text-white border-b border-neon-purple pb-0.5">Go to Classroom</a>
+                        <a href="admin/login.html" class="text-[10px] uppercase tracking-tighter text-gray-500 hover:text-neon-cyan transition-colors">Admin</a>
+                    `;
+                }
+            }
+        });
         
         // Mobile Interactions
         function toggleMobileMenu() {

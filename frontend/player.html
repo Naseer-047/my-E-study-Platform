@@ -68,10 +68,14 @@
             <span class="h-6 w-px bg-white/10"></span>
             <span id="course-title" class="font-display font-medium text-white tracking-wide">Loading...</span>
         </div>
-        <div>
-            <div class="text-xs font-bold text-gray-500 uppercase tracking-widest bg-white/5 px-3 py-1 rounded-full border border-white/5">
-                Classroom Mode
+        <div class="flex items-center gap-6">
+            <div class="hidden sm:flex items-center gap-3 px-3 py-1.5 rounded-full bg-white/5 border border-white/5">
+                <div class="w-6 h-6 rounded-full bg-neon-cyan/20 flex items-center justify-center text-[10px] font-bold text-neon-cyan" id="user-initials-player">--</div>
+                <span class="text-xs font-medium text-gray-300" id="user-name-player">Student</span>
             </div>
+            <button onclick="logoutStudent()" class="text-gray-500 hover:text-white transition-colors" title="Log Out">
+                <i data-lucide="log-out" class="w-4 h-4"></i>
+            </button>
         </div>
     </header>
 
@@ -313,6 +317,21 @@
                     .then(reg => console.log('SW Registered'))
                     .catch(err => console.log('SW Registration Failed', err));
             });
+        }
+
+        // User Info & Logout
+        window.addEventListener('DOMContentLoaded', () => {
+            const studentName = localStorage.getItem('studentName') || 'Student';
+            const nameEl = document.getElementById('user-name-player');
+            const initialEl = document.getElementById('user-initials-player');
+            if(nameEl) nameEl.innerText = studentName;
+            if(initialEl) initialEl.innerText = studentName.split(' ').map(n => n[0]).join('').toUpperCase();
+        });
+
+        function logoutStudent() {
+            localStorage.removeItem('studentToken');
+            localStorage.removeItem('studentName');
+            window.location.href = '../login.html';
         }
     </script>
 </body>
