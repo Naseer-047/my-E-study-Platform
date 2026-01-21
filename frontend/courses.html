@@ -144,8 +144,23 @@
         gsap.to("#page-header", { opacity: 1, y: 0, duration: 1, ease: "power3.out" });
 
         async function loadCourses() {
+            const token = localStorage.getItem('studentToken');
+            if (!token) {
+                window.location.href = '../login.html';
+                return;
+            }
+
             try {
-                const res = await fetch(`${CONFIG.API_BASE_URL}/courses`);
+                const res = await fetch(`${CONFIG.API_BASE_URL}/courses`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (res.status === 401 || res.status === 403) {
+                    localStorage.removeItem('studentToken');
+                    window.location.href = '../login.html';
+                    return;
+                }
+
                 const courses = await res.json();
                 const grid = document.getElementById('course-grid');
                 grid.innerHTML = '';

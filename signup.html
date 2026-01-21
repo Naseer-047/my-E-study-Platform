@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up | Academia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'], display: ['Space Grotesk', 'sans-serif'] },
+                    colors: {
+                        'neon-blue': '#4F46E5',
+                        'neon-purple': '#A855F7',
+                        'neon-cyan': '#06B6D4'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background: #0f172a; color: white; min-height: 100vh; display: flex; align-items: center; justify-content: center; overflow-x: hidden; }
+        .glass-panel { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .input-glow:focus { border-color: #A855F7; box-shadow: 0 0 15px rgba(168, 85, 247, 0.3); }
+        .ambient-bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; background: radial-gradient(circle at 10% 20%, rgba(79, 70, 229, 0.1), transparent 40%), radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.1), transparent 40%); }
+    </style>
+</head>
+<body>
+    <div class="ambient-bg"></div>
+    
+    <div class="w-full max-w-md px-6 py-12">
+        <div class="glass-panel p-8 rounded-3xl relative overflow-hidden signup-card opacity-0 translate-y-10">
+            <!-- Branding -->
+            <div class="text-center mb-10">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-neon-blue to-neon-purple flex items-center justify-center mx-auto mb-6 shadow-lg shadow-neon-purple/20">
+                    <i data-lucide="zap" class="w-8 h-8 text-white"></i>
+                </div>
+                <h1 class="text-3xl font-display font-bold mb-2">Join Academia</h1>
+                <p class="text-gray-400">Create your account to start learning</p>
+            </div>
+
+            <form id="signup-form" class="space-y-6">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Full Name</label>
+                    <div class="relative">
+                        <i data-lucide="user" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"></i>
+                        <input type="text" id="name" required class="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-3 outline-none transition-all input-glow" placeholder="Aryan Sharma">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Email Address</label>
+                    <div class="relative">
+                        <i data-lucide="mail" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"></i>
+                        <input type="email" id="email" required class="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-3 outline-none transition-all input-glow" placeholder="aryan@example.com">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Password</label>
+                    <div class="relative">
+                        <i data-lucide="lock" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"></i>
+                        <input type="password" id="password" required class="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-3 outline-none transition-all input-glow" placeholder="••••••••">
+                    </div>
+                </div>
+
+                <button type="submit" id="submit-btn" class="w-full bg-neon-purple hover:bg-neon-purple/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-neon-purple/20 transition-all flex items-center justify-center gap-2">
+                    Create Account <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+            </form>
+
+            <div class="mt-8 pt-8 border-t border-white/5 text-center">
+                <p class="text-gray-400 text-sm">Already have an account? <a href="login.html" class="text-neon-cyan hover:underline">Log In</a></p>
+            </div>
+            
+            <div id="status-msg" class="mt-6 text-center text-sm font-medium hidden"></div>
+        </div>
+    </div>
+
+    <script src="frontend/js/config.js"></script>
+    <script>
+        lucide.createIcons();
+        gsap.to(".signup-card", { opacity: 1, y: 0, duration: 1, ease: "power4.out" });
+
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            const msgEl = document.getElementById('status-msg');
+            
+            btn.disabled = true;
+            btn.innerHTML = 'Creating Account...';
+            
+            const payload = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value
+            };
+
+            try {
+                const res = await fetch(`${CONFIG.API_BASE_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+
+                msgEl.classList.remove('hidden', 'text-red-400', 'text-neon-cyan');
+                if (res.ok) {
+                    msgEl.innerHTML = data.message + " Redirecting...";
+                    msgEl.classList.add('text-neon-cyan');
+                    setTimeout(() => window.location.href = 'login.html', 3000);
+                } else {
+                    msgEl.innerHTML = data.message;
+                    msgEl.classList.add('text-red-400');
+                    btn.disabled = false;
+                    btn.innerHTML = 'Create Account <i data-lucide="arrow-right" class="w-4 h-4"></i>';
+                    lucide.createIcons();
+                }
+            } catch (err) {
+                msgEl.innerHTML = "Connection Error";
+                msgEl.classList.add('text-red-400');
+                btn.disabled = false;
+                btn.innerHTML = 'Create Account';
+            }
+        });
+    </script>
+</body>
+</html>

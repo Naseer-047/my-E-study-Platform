@@ -83,6 +83,9 @@
             <button onclick="switchTab('discussions')" class="nav-link w-full" id="btn-discussions">
                 <i data-lucide="message-circle" class="w-5 h-5"></i> Discussions
             </button>
+            <button onclick="switchTab('users')" class="nav-link w-full" id="btn-users">
+                <i data-lucide="users" class="w-5 h-5"></i> Manage Users
+            </button>
             <button onclick="openBroadcastModal()" class="nav-link w-full text-neon-red/80 hover:text-neon-red">
                 <i data-lucide="radio" class="w-5 h-5"></i> Broadcast
             </button>
@@ -261,6 +264,29 @@
                     </table>
                 </div>
             </div>
+
+            <div id="view-users" class="hidden space-y-6">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/5">
+                    <h3 class="text-white font-bold text-lg">Student Management</h3>
+                    <p class="text-xs text-gray-500">Approve or Reject new student registrations</p>
+                </div>
+
+                <div class="glass-panel rounded-xl overflow-hidden overflow-x-auto">
+                    <table class="w-full text-sm min-w-[600px]">
+                        <thead>
+                            <tr class="text-gray-500 text-xs uppercase tracking-wider bg-white/5 border-b border-white/5">
+                                <th class="py-4 px-6 font-medium text-left">Student Info</th>
+                                <th class="py-4 px-6 font-medium text-left">Status</th>
+                                <th class="py-4 px-6 font-medium text-left">Joined Date</th>
+                                <th class="py-4 px-6 font-medium text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body" class="divide-y divide-white/5">
+                            <!-- Injected -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
     </main>
     
     <!-- Broadcast Modal -->
@@ -426,7 +452,7 @@
 
         function switchTab(viewId) {
             // Hide all views explicitly
-            const views = ['dashboard', 'courses', 'hackathons', 'requests', 'discussions'];
+            const views = ['dashboard', 'courses', 'hackathons', 'requests', 'discussions', 'users'];
             views.forEach(v => {
                 const el = document.getElementById(`view-${v}`);
                 if(el) el.classList.add('hidden');
@@ -453,6 +479,10 @@
             if(viewId === 'discussions') {
                 title = 'Internal Discussions';
                 loadAdminDiscussions();
+            }
+            if(viewId === 'users') {
+                title = 'Manage Students';
+                loadAdminUsers();
             }
             if(viewId === 'dashboard') {
                 loadDashboardData();
@@ -721,6 +751,66 @@
         function logout() {
             localStorage.removeItem('adminToken');
             window.location.href = 'login.html';
+        }
+
+        async function loadAdminUsers() {
+            try {
+                let token = localStorage.getItem('adminToken') || '';
+                if(token.includes('Bearer ')) token = token.replace('Bearer ', '').trim();
+
+                const res = await fetch(`${CONFIG.API_BASE_URL}/users`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const users = await res.json();
+                
+                const tbody = document.getElementById('users-table-body');
+                tbody.innerHTML = '';
+
+                users.forEach(u => {
+                    const statusClass = u.status === 'Approved' ? 'bg-neon-green/10 text-neon-green' : 
+                                      u.status === 'Pending' ? 'bg-yellow-500/10 text-yellow-500' : 'bg-red-500/10 text-red-500';
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-white/5 transition-colors";
+                    tr.innerHTML = `
+                        <td class="py-4 px-6">
+                            <div class="font-bold text-white">${u.name}</div>
+                            <div class="text-xs text-gray-500">${u.email}</div>
+                        </td>
+                        <td class="py-4 px-6">
+                            <span class="px-2 py-1 rounded text-[10px] font-bold uppercase ${statusClass}">${u.status}</span>
+                        </td>
+                        <td class="py-4 px-6 text-gray-400 text-xs">
+                            ${new Date(u.createdAt).toLocaleDateString()}
+                        </td>
+                        <td class="py-4 px-6 text-right space-x-2">
+                            ${u.status !== 'Approved' ? `
+                                <button onclick="updateUserStatus('${u._id}', 'Approved')" class="text-neon-green hover:underline text-xs">Approve</button>
+                            ` : ''}
+                            ${u.status !== 'Rejected' ? `
+                                <button onclick="updateUserStatus('${u._id}', 'Rejected')" class="text-red-500 hover:underline text-xs">Reject</button>
+                            ` : ''}
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (err) { console.error(err); }
+        }
+
+        async function updateUserStatus(userId, status) {
+            try {
+                let token = localStorage.getItem('adminToken') || '';
+                if(token.includes('Bearer ')) token = token.replace('Bearer ', '').trim();
+
+                const res = await fetch(`${CONFIG.API_BASE_URL}/users/${userId}/status`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ status })
+                });
+                if (res.ok) loadAdminUsers();
+            } catch (err) { console.error(err); }
         }
     </script>
 </body>

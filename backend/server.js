@@ -26,8 +26,32 @@ mongoose.connect(MONGO_URI)
   .catch(err => console.error('MongoDB Connection Error:', err));
 
 // API Routes
-app.use('/api/courses', require('./src/routes/courses'));
-app.use('/api/hackathons', require('./src/routes/hackathons'));
+app.use('/api/auth', require('./src/routes/auth'));
+app.use('/api/users', require('./src/routes/users'));
+
+// Protection Middleware (Optional: Add for content safety)
+const isApprovedStudent = async (req, res, next) => {
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        if (!token) return res.status(401).json({ message: 'No token provided' });
+        
+        // Admin exception
+        if (token === 'admin-secret-123') return next();
+
+        const jwt = require('jsonwebtoken');
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_default_jwt_secret_123');
+        const User = require('./src/models/User');
+        const user = await User.findById(decoded.id);
+
+        if (!user || user.status !== 'Approved') {
+            return res.status(403).json({ message: 'Access denied: Account not approved.' });
+        }
+        next();
+    } catch (e) { res.status(401).json({ message: 'Invalid session' }); }
+};
+
+app.use('/api/courses', isApprovedStudent, require('./src/routes/courses'));
+app.use('/api/hackathons', isApprovedStudent, require('./src/routes/hackathons'));
 app.use('/api/requests', require('./src/routes/requests'));
 app.use('/api/comments', require('./src/routes/comments'));
 app.use('/api/alerts', require('./src/routes/alerts'));
