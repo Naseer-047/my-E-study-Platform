@@ -50,7 +50,7 @@ function createCourseCard(course) {
 
             <div class="mt-auto pt-6 border-t border-gray-50 flex justify-between items-center">
                 <span class="text-xs text-gray-400 font-medium">${course.totalVideos} Lessons</span>
-                <a href="player.html?id=${course.id}" class="text-sm font-semibold text-classic-charcoal hover:underline flex items-center gap-1">
+                <a href="player.html?id=${course.id || course._id}" class="text-sm font-semibold text-classic-charcoal hover:underline flex items-center gap-1">
                     Start Learning <i data-lucide="arrow-right" class="w-4 h-4"></i>
                 </a>
             </div>

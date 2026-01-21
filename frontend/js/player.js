@@ -29,7 +29,7 @@ function initPlayer(course) {
     const lessonTitle = document.getElementById('lesson-title');
 
     // Load progress from LocalStorage
-    const progressKey = `academia_progress_${course.id}`;
+    const progressKey = `academia_progress_${course.id || course._id}`;
     let savedProgress = JSON.parse(localStorage.getItem(progressKey)) || {};
     
     // Render Playlist
