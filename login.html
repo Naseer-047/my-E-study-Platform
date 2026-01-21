@@ -120,9 +120,17 @@
                     localStorage.setItem('studentName', data.user.name);
                     setTimeout(() => window.location.href = 'frontend/courses.html', 1500);
                 } else {
-                    msgEl.innerHTML = data.message;
-                    if (res.status === 403) msgEl.classList.add('text-yellow-400');
-                    else msgEl.classList.add('text-red-400');
+                    if (res.status === 403) {
+                        msgEl.innerHTML = `
+                            <div class="p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-left">
+                                <p class="font-bold text-xs uppercase mb-1">Request Under Process</p>
+                                <p class="text-[11px] leading-tight">${data.message}</p>
+                            </div>
+                        `;
+                    } else {
+                        msgEl.innerHTML = data.message;
+                        msgEl.classList.add('text-red-400');
+                    }
                     
                     btn.disabled = false;
                     btn.innerHTML = 'Log In <i data-lucide="log-in" class="w-4 h-4"></i>';

@@ -108,9 +108,24 @@
 
                 msgEl.classList.remove('hidden', 'text-red-400', 'text-neon-cyan');
                 if (res.ok) {
-                    msgEl.innerHTML = data.message + " Redirecting...";
-                    msgEl.classList.add('text-neon-cyan');
-                    setTimeout(() => window.location.href = 'login.html', 3000);
+                    // Success UI: Hide form and show "Under Process" message
+                    document.getElementById('signup-form').classList.add('hidden');
+                    document.querySelector('.signup-card h1').innerText = "Request Received";
+                    document.querySelector('.signup-card p').innerText = "Our team is reviewing your application";
+                    
+                    msgEl.innerHTML = `
+                        <div class="mt-8 space-y-4">
+                            <div class="p-6 rounded-2xl bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-left">
+                                <h4 class="font-bold mb-2 flex items-center gap-2">
+                                    <i data-lucide="clock" class="w-4 h-4"></i> Under Process
+                                </h4>
+                                <p class="text-xs leading-relaxed">Your registration is successful. Access will be granted once the admin approves your request. Please check back later.</p>
+                            </div>
+                            <a href="login.html" class="block w-full py-4 rounded-xl border border-white/10 text-white font-bold hover:bg-white/5 transition-all">Go to Login</a>
+                        </div>
+                    `;
+                    msgEl.classList.remove('hidden');
+                    lucide.createIcons();
                 } else {
                     msgEl.innerHTML = data.message;
                     msgEl.classList.add('text-red-400');
