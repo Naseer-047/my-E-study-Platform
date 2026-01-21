@@ -11,7 +11,8 @@ const CourseSchema = new mongoose.Schema({
     {
       title: String,
       url: String,
-      duration: String
+      duration: String,
+      notes: String
     }
   ],
   createdAt: {

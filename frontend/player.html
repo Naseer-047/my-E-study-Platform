@@ -9,6 +9,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -62,7 +64,12 @@
             <!-- Content Tabs -->
             <div class="flex-1 bg-white text-gray-900 p-4 md:p-8">
                 <div class="max-w-4xl mx-auto">
-                    <h1 id="lesson-title" class="text-xl md:text-2xl font-serif font-semibold mb-4">Select a lesson</h1>
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+                        <h1 id="lesson-title" class="text-xl md:text-2xl font-serif font-semibold">Select a lesson</h1>
+                        <button id="download-notes-btn" onclick="downloadNotes()" class="hidden flex items-center gap-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded transition-colors">
+                            <i data-lucide="download" class="w-4 h-4"></i> Download Notes
+                        </button>
+                    </div>
                     
                     <div class="border-b border-gray-200 mb-6 overflow-x-auto">
                         <nav class="-mb-px flex gap-6 md:gap-8 whitespace-nowrap">
@@ -72,7 +79,7 @@
                         </nav>
                     </div>
 
-                    <div class="prose max-w-none text-gray-600 text-sm md:text-base">
+                    <div id="lesson-notes" class="prose max-w-none text-gray-600 text-sm md:text-base">
                         <p>Notes for this lesson will appear here. Markdown content is supported.</p>
                         <h3>Key Takeaways</h3>
                         <ul>

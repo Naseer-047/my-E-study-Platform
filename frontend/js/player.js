@@ -56,6 +56,19 @@ function initPlayer(course) {
             player.src = video.url + "?autoplay=1";
             lessonTitle.textContent = video.title;
 
+            // Render Notes
+            const notesEl = document.getElementById('lesson-notes');
+            const downloadBtn = document.getElementById('download-notes-btn');
+            
+            if(video.notes) {
+                notesEl.innerHTML = marked.parse(video.notes);
+                downloadBtn.classList.remove('hidden');
+                downloadBtn.setAttribute('data-filename', `${video.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}-notes.pdf`);
+            } else {
+                notesEl.innerHTML = '<p class="text-gray-400 italic">No notes available for this lesson.</p>';
+                downloadBtn.classList.add('hidden');
+            }
+
             // Save Progress
             savedProgress.lastVideoId = video.id;
             localStorage.setItem(progressKey, JSON.stringify(savedProgress));
@@ -73,4 +86,20 @@ function initPlayer(course) {
     });
     
     lucide.createIcons();
+}
+
+window.downloadNotes = function() {
+    const element = document.getElementById('lesson-notes');
+    const btn = document.getElementById('download-notes-btn');
+    const filename = btn.getAttribute('data-filename') || 'notes.pdf';
+    
+    const opt = {
+        margin: 1,
+        filename: filename,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+    
+    html2pdf().set(opt).from(element).save();
 }
