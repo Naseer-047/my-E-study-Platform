@@ -5,7 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Academia | Future Learning</title>
     
-    <!-- Fonts -->
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#06b6d4">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Curicity">
+    <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -131,7 +138,14 @@
 
         /* Utilities */
         .section-padding { padding-top: 8rem; padding-bottom: 8rem; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         .hide-scroll::-webkit-scrollbar { display: none; }
+        
+        /* App UI Optimization */
+        button, a, .nav-link, .modal-close {
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
     </style>
 </head>
 <body class="selection:bg-neon-purple selection:text-white">
@@ -168,6 +182,7 @@
         <a href="index.html" class="text-3xl font-display font-bold text-white">Home</a>
         <a href="frontend/courses.html" class="text-3xl font-display font-bold text-gray-400">Library</a>
         <a href="frontend/notes.html" class="text-3xl font-display font-bold text-gray-400">Notes</a>
+        <button onclick="installApp()" class="px-6 py-2 rounded-full border border-neon-cyan/50 text-neon-cyan text-sm font-bold hover:bg-neon-cyan/10 transition-all">Install Mobile App</button>
         <a href="admin/login.html" class="text-xl font-medium text-neon-purple pt-8">Admin Access</a>
         <button onclick="toggleMobileMenu()" class="absolute top-8 right-8 text-gray-500 hover:text-white">
             <i data-lucide="x" class="w-8 h-8"></i>
@@ -693,6 +708,30 @@
         });
         
         lucide.createIcons();
+
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('SW Registered'))
+                    .catch(err => console.log('SW Registration Failed', err));
+            });
+        }
+
+        // PWA Install Prompt Logic
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            console.log('App is installable');
+        });
+
+        async function installApp() {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            deferredPrompt = null;
+        }
     </script>
 </body>
 </html>
