@@ -117,7 +117,7 @@
             
             setTimeout(() => {
                 if (pass === 'admin123') {
-                    localStorage.setItem('adminToken', 'Bearer admin-secret-123'); // Matches admin/index.html logout
+                    localStorage.setItem('adminToken', 'admin-secret-123'); // Fix: Store raw token
                     
                     // Success Anim
                     btn.classList.replace('bg-neon-red', 'bg-green-500');
