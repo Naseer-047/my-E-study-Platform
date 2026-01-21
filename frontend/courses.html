@@ -37,19 +37,37 @@
 
     <!-- Navbar -->
     <nav class="w-full py-6 px-8 flex justify-between items-center border-b border-gray-200 bg-[#F9F8F4]/90 sticky top-0 z-50">
-        <a href="index.html" class="text-2xl font-serif font-semibold tracking-tight text-classic-charcoal flex items-center gap-2">
+        <a href="../index.html" class="text-2xl font-serif font-semibold tracking-tight text-classic-charcoal flex items-center gap-2">
             <i data-lucide="book-open" class="w-6 h-6"></i>
             Academia
         </a>
-        <div class="hidden md:flex gap-8 text-sm font-medium text-gray-600">
-            <a href="index.html" class="hover:text-classic-navy transition-colors">Home</a>
+
+         <!-- Desktop Menu -->
+         <div class="hidden md:flex gap-8 text-sm font-medium text-gray-600">
+            <a href="../index.html" class="hover:text-classic-navy transition-colors">Home</a>
             <a href="courses.html" class="text-classic-charcoal font-semibold">Courses</a>
             <a href="#" class="hover:text-classic-navy transition-colors">Mentorship</a>
         </div>
-        <div>
-           <a href="../admin/login.html" class="text-sm font-medium text-gray-500 hover:text-classic-navy transition-colors">Admin</a>
+        <div class="hidden md:block">
+            <a href="../admin/login.html" class="text-sm font-medium text-gray-500 hover:text-classic-navy transition-colors">Admin</a>
         </div>
+
+        <!-- Mobile Menu Button -->
+        <button id="mobile-menu-btn" class="md:hidden text-gray-600 hover:text-classic-charcoal p-2">
+            <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
     </nav>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu" class="hidden fixed inset-0 z-40 bg-white/95 backdrop-blur-sm pt-24 px-8 flex flex-col gap-6 md:hidden transition-all duration-300">
+        <a href="../index.html" class="text-xl font-serif text-classic-charcoal border-b border-gray-100 pb-2">Home</a>
+        <a href="courses.html" class="text-xl font-serif text-classic-charcoal border-b border-gray-100 pb-2">Courses</a>
+        <a href="#" class="text-xl font-serif text-gray-400 border-b border-gray-100 pb-2">Mentorship</a>
+        <a href="../admin/login.html" class="text-xl font-serif text-classic-navy pt-4">Admin Login</a>
+        <button id="close-menu-btn" class="absolute top-6 right-8 text-gray-500 p-2">
+            <i data-lucide="x" class="w-8 h-8"></i>
+        </button>
+    </div>
 
     <!-- Header -->
     <header class="bg-white border-b border-gray-200 pt-16 pb-12 px-8">
@@ -75,6 +93,23 @@
     <script src="js/courses.js"></script>
     <script>
         lucide.createIcons();
+
+        // Mobile Menu Logic
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const closeMenuBtn = document.getElementById('close-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        function toggleMenu() {
+            mobileMenu.classList.toggle('hidden');
+            if(!mobileMenu.classList.contains('hidden')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        }
+
+        if(mobileMenuBtn) mobileMenuBtn.addEventListener('click', toggleMenu);
+        if(closeMenuBtn) closeMenuBtn.addEventListener('click', toggleMenu);
     </script>
 </body>
 </html>
