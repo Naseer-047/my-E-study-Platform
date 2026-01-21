@@ -77,6 +77,9 @@
             <button onclick="switchTab('hackathons')" class="nav-link w-full" id="btn-hackathons">
                 <i data-lucide="trophy" class="w-5 h-5"></i> Hackathons
             </button>
+            <button onclick="switchTab('requests')" class="nav-link w-full" id="btn-requests">
+                <i data-lucide="message-square" class="w-5 h-5"></i> Requests
+            </button>
             <button onclick="openBroadcastModal()" class="nav-link w-full text-neon-red/80 hover:text-neon-red">
                 <i data-lucide="radio" class="w-5 h-5"></i> Broadcast
             </button>
@@ -207,7 +210,29 @@
                     </table>
                 </div>
             </div>
-            <!-- VIEW: HACKATHONS -->
+            <!-- VIEW: REQUESTS -->
+            <div id="view-requests" class="hidden space-y-6">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/5">
+                    <h3 class="text-white font-bold text-lg">Student Requests</h3>
+                    <p class="text-xs text-gray-500">Click a request to manage student needs</p>
+                </div>
+
+                <div class="glass-panel rounded-xl overflow-hidden overflow-x-auto">
+                    <table class="w-full text-sm min-w-[600px]">
+                        <thead>
+                            <tr class="text-gray-500 text-xs uppercase tracking-wider bg-white/5 border-b border-white/5">
+                                <th class="py-4 px-6 font-medium text-left">Student Info</th>
+                                <th class="py-4 px-6 font-medium text-left">Subject / Topic</th>
+                                <th class="py-4 px-6 font-medium text-left">Status</th>
+                                <th class="py-4 px-6 font-medium text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="requests-table-body" class="divide-y divide-white/5">
+                            <!-- Injected -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
             <div id="view-hackathons" class="hidden space-y-6">
                 <div class="flex flex-col md:flex-row justify-between items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/5">
                     <h3 class="text-white font-bold">Hackathon Management</h3>
@@ -326,6 +351,10 @@
             if(viewId === 'hackathons') {
                 title = 'Hackathon Management';
                 loadAdminHackathons();
+            }
+            if(viewId === 'requests') {
+                title = 'Note Requests';
+                loadAdminRequests();
             }
             document.getElementById('page-title').innerText = title;
         }
@@ -452,6 +481,74 @@
                 document.getElementById('broadcast-modal').classList.add('hidden');
             }
         }
+        async function loadAdminRequests() {
+             try {
+                const res = await fetch(`${CONFIG.API_BASE_URL}/requests`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
+                });
+                const data = await res.json();
+                const tbody = document.getElementById('requests-table-body');
+                tbody.innerHTML = '';
+                
+                data.forEach(r => {
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-white/5 transition-colors";
+                    const id = r.id || r._id;
+                    const statusClass = r.status === 'Pending' ? 'bg-neon-blue/10 text-neon-blue' : 'bg-neon-green/10 text-neon-green';
+                    
+                    tr.innerHTML = `
+                        <td class="py-4 px-6">
+                            <div class="flex flex-col">
+                                <span class="font-bold text-white">${r.studentName}</span>
+                                <span class="text-[10px] text-gray-500">${new Date(r.createdAt).toLocaleString()}</span>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6">
+                             <div class="flex flex-col">
+                                <span class="text-white font-medium">${r.subject}</span>
+                                <p class="text-[10px] text-gray-500 line-clamp-1">${r.topic}</p>
+                             </div>
+                        </td>
+                        <td class="py-4 px-6"><span class="px-2 py-1 rounded-full ${statusClass} text-[10px] font-bold border border-white/5">${r.status}</span></td>
+                        <td class="py-4 px-6 text-right text-gray-400 no-wrap">
+                             <button onclick="updateRequestStatus('${id}', 'Fulfilled')" class="p-2 rounded hover:bg-neon-green/10 hover:text-neon-green" title="Mark as Fulfilled"><i data-lucide="check-circle" class="w-4 h-4"></i></button>
+                             <button onclick="deleteRequest('${id}')" class="p-2 rounded hover:bg-neon-red/10 hover:text-neon-red" title="Dismiss Request"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+                lucide.createIcons();
+            } catch(e) {}
+        }
+
+        async function updateRequestStatus(id, status) {
+            let token = localStorage.getItem('adminToken') || '';
+            if(token.includes('Bearer ')) token = token.replace('Bearer ', '').trim();
+            
+            await fetch(`${CONFIG.API_BASE_URL}/requests/${id}`, {
+                method: 'PUT',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ status })
+            });
+            loadAdminRequests();
+        }
+
+        async function deleteRequest(id) {
+            if(confirm("Dismiss this request?")) {
+                let token = localStorage.getItem('adminToken') || '';
+                if(token.includes('Bearer ')) token = token.replace('Bearer ', '').trim();
+                
+                await fetch(`${CONFIG.API_BASE_URL}/requests/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                loadAdminRequests();
+            }
+        }
+
         function logout() {
             localStorage.removeItem('adminToken');
             window.location.href = 'login.html';

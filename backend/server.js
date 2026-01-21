@@ -28,6 +28,7 @@ mongoose.connect(MONGO_URI)
 // API Routes
 app.use('/api/courses', require('./src/routes/courses'));
 app.use('/api/hackathons', require('./src/routes/hackathons'));
+app.use('/api/requests', require('./src/routes/requests'));
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
