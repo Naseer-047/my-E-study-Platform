@@ -84,19 +84,21 @@ function initPlayer(course) {
 
             // Update Player
             placeholder.classList.add('hidden');
-            // Extract Video ID if full URL
-            let vId = video.url;
-            if(vId.includes('v=')) vId = vId.split('v=')[1];
-            if(vId.includes('&')) vId = vId.split('&')[0];
             
-            // If it's just the ID, use embed URL
-            // Assuming data is mixed, standardizing on Embed URL is safest if not already
-            let embedUrl = video.url;
-            if(!embedUrl.includes('embed')) {
-                 embedUrl = `https://www.youtube.com/embed/${vId}`;
+            // Robust YouTube ID Extraction
+            // Handles: v=ID, embed/ID, youtu.be/ID, or raw ID
+            let vId = video.url;
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = video.url.match(regExp);
+            if (match && match[2].length == 11) {
+                vId = match[2];
+            } else {
+                // Determine if it looks like a raw ID (11 chars) or fallback
+                if(video.url.length === 11) vId = video.url; 
             }
 
-            player.src = `${embedUrl}?autoplay=1&rel=0&modestbranding=1`;
+            const embedUrl = `https://www.youtube.com/embed/${vId}?autoplay=1&rel=0&modestbranding=1`;
+            player.src = embedUrl;
             lessonTitle.textContent = video.title;
             
             // Notes Rendering
