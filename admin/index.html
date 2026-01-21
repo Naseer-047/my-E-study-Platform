@@ -159,28 +159,19 @@
                     </div>
                      <!-- Stat 3 -->
                     <div class="glass-panel p-6 rounded-xl relative overflow-hidden group">
-                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-neon-green/10 rounded-full blur-xl group-hover:bg-neon-green/20 transition-colors"></div>
-                        <span class="text-gray-500 text-xs uppercase tracking-widest font-bold block mb-2">System Status</span>
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-neon-cyan/10 rounded-full blur-xl group-hover:bg-neon-cyan/20 transition-colors"></div>
+                        <span class="text-gray-500 text-xs uppercase tracking-widest font-bold block mb-2">Pending Requests</span>
                         <div class="flex justify-between items-end relative z-10">
-                            <span class="text-lg font-bold text-neon-green">Operational</span>
-                            <div class="w-2 h-2 rounded-full bg-neon-green animate-pulse"></div>
+                            <span id="stat-requests" class="text-4xl font-display font-bold text-white">0</span>
+                            <i data-lucide="message-square" class="text-neon-cyan w-6 h-6"></i>
                         </div>
                     </div>
                 </div>
 
                 <div class="glass-panel p-6 rounded-xl">
                     <h3 class="text-lg font-bold text-white mb-4">Recent Activity</h3>
-                    <div class="space-y-4">
-                        <div class="flex items-center gap-4 text-sm text-gray-400">
-                            <i data-lucide="activity" class="w-4 h-4 text-neon-cyan"></i>
-                            <span>Admin logged in</span>
-                            <span class="ml-auto text-xs opacity-50">Just now</span>
-                        </div>
-                        <div class="flex items-center gap-4 text-sm text-gray-400">
-                            <i data-lucide="plus-circle" class="w-4 h-4 text-neon-purple"></i>
-                            <span>New course "Advanced React" created</span>
-                            <span class="ml-auto text-xs opacity-50">2h ago</span>
-                        </div>
+                    <div id="dashboard-activity-list" class="space-y-4">
+                        <div class="text-center py-4 text-gray-600 text-xs animate-pulse">Loading real-time events...</div>
                     </div>
                 </div>
             </div>
@@ -345,14 +336,104 @@
     <script>
         // Init
         lucide.createIcons();
+        loadDashboardData();
         loadAdminCourses();
 
-        // UI Logic
+        async function loadDashboardData() {
+            try {
+                // Parallel fetch for speed
+                const [coursesRes, requestsRes, commentsRes] = await Promise.all([
+                    fetch(`${CONFIG.API_BASE_URL}/courses`),
+                    fetch(`${CONFIG.API_BASE_URL}/requests`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` } }),
+                    fetch(`${CONFIG.API_BASE_URL}/comments/all`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` } })
+                ]);
+
+                const courses = await coursesRes.json();
+                const requests = await requestsRes.json();
+                const comments = await commentsRes.json();
+
+                // Stats Dashboard
+                document.getElementById('stat-modules').innerText = courses.length;
+                let totalVideos = 0;
+                courses.forEach(c => totalVideos += (c.videos ? c.videos.length : 0));
+                document.getElementById('stat-videos').innerText = totalVideos;
+                
+                const pending = requests.filter(r => r.status === 'Pending').length;
+                document.getElementById('stat-requests').innerText = pending;
+
+                // Activity Feed Build
+                const events = [];
+                
+                // 1. Requests
+                requests.forEach(r => events.push({
+                    icon: 'message-square',
+                    color: 'neon-cyan',
+                    text: `${r.studentName} requested ${r.subject} notes`,
+                    time: new Date(r.createdAt)
+                }));
+
+                // 2. Comments
+                comments.forEach(c => events.push({
+                    icon: 'message-circle',
+                    color: 'neon-purple',
+                    text: `${c.userName} posted a discussion`,
+                    time: new Date(c.createdAt)
+                }));
+
+                // 3. Course Updates
+                courses.forEach(c => events.push({
+                    icon: 'edit-3',
+                    color: 'neon-green',
+                    text: `Module "${c.title}" updated`,
+                    time: new Date(c.updatedAt || c.createdAt)
+                }));
+
+                // Sort by newest
+                events.sort((a,b) => b.time - a.time);
+                
+                const list = document.getElementById('dashboard-activity-list');
+                list.innerHTML = events.length ? '' : '<div class="text-center py-4 text-gray-600 text-xs">No activity yet.</div>';
+                
+                events.slice(0, 8).forEach(e => {
+                    const div = document.createElement('div');
+                    div.className = "flex items-center gap-4 text-sm text-gray-400";
+                    div.innerHTML = `
+                        <i data-lucide="${e.icon}" class="w-4 h-4 text-${e.color}"></i>
+                        <span class="truncate">${e.text}</span>
+                        <span class="ml-auto text-[10px] opacity-50 whitespace-nowrap">${timeAgo(e.time)}</span>
+                    `;
+                    list.appendChild(div);
+                });
+                lucide.createIcons();
+
+            } catch(err) { console.error("Dashboard data load failed", err); }
+        }
+
+        function timeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            let interval = seconds / 31536000;
+            if (interval > 1) return Math.floor(interval) + "y ago";
+            interval = seconds / 2592000;
+            if (interval > 1) return Math.floor(interval) + "mo ago";
+            interval = seconds / 86400;
+            if (interval > 1) return Math.floor(interval) + "d ago";
+            interval = seconds / 3600;
+            if (interval > 1) return Math.floor(interval) + "h ago";
+            interval = seconds / 60;
+            if (interval > 1) return Math.floor(interval) + "m ago";
+            return "Just now";
+        }
+
         function switchTab(viewId) {
-            document.getElementById('view-dashboard').classList.add('hidden');
-            document.getElementById('view-courses').classList.add('hidden');
-            document.getElementById('view-hackathons').classList.add('hidden');
-            document.getElementById(`view-${viewId}`).classList.remove('hidden');
+            // Hide all views explicitly
+            const views = ['dashboard', 'courses', 'hackathons', 'requests', 'discussions'];
+            views.forEach(v => {
+                const el = document.getElementById(`view-${v}`);
+                if(el) el.classList.add('hidden');
+            });
+
+            const currentView = document.getElementById(`view-${viewId}`);
+            if(currentView) currentView.classList.remove('hidden');
             
             // Sidebar Active State
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
@@ -373,6 +454,9 @@
                 title = 'Internal Discussions';
                 loadAdminDiscussions();
             }
+            if(viewId === 'dashboard') {
+                loadDashboardData();
+            }
             document.getElementById('page-title').innerText = title;
         }
 
@@ -381,18 +465,11 @@
             el.classList.toggle('hidden');
         }
 
-        // --- Data Logic (Same as before) ---
         async function loadAdminCourses() {
              try {
                 const res = await fetch(`${CONFIG.API_BASE_URL}/courses`);
                 const courses = await res.json();
                 
-                // Update Dashboard Stats
-                document.getElementById('stat-modules').innerText = courses.length;
-                let totalVideos = 0;
-                courses.forEach(c => totalVideos += (c.videos ? c.videos.length : 0));
-                document.getElementById('stat-videos').innerText = totalVideos;
-
                 const tbody = document.getElementById('courses-table-body');
                 tbody.innerHTML = '';
                 
