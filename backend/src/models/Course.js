@@ -15,10 +15,6 @@ const CourseSchema = new mongoose.Schema({
       notes: String
     }
   ],
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
 }, { timestamps: true });
 
 // Calculate totalVideos before saving, just in case

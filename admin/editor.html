@@ -246,7 +246,9 @@
                 videos: videos
             };
             
-            const token = localStorage.getItem('adminToken');
+            let token = localStorage.getItem('adminToken') || '';
+            // Auto-fix: Strip 'Bearer ' if it's accidentally stored in the variable
+            if(token.includes('Bearer ')) token = token.replace('Bearer ', '').trim();
 
             try {
                 const headers = { 'Content-Type': 'application/json' };

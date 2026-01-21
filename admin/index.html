@@ -346,7 +346,16 @@
         // Delete Logic
         async function deleteCourse(id) {
              if(confirm("Delete this module?")) {
-                 await fetch(`${CONFIG.API_BASE_URL}/courses/${id}`, { method: 'DELETE' });
+                 let token = localStorage.getItem('adminToken') || '';
+                 if(token.includes('Bearer ')) token = token.replace('Bearer ', '').trim();
+
+                 const headers = {};
+                 if(token) headers['Authorization'] = `Bearer ${token}`;
+
+                 await fetch(`${CONFIG.API_BASE_URL}/courses/${id}`, { 
+                     method: 'DELETE',
+                     headers: headers
+                 });
                  loadAdminCourses();
              }
         }
