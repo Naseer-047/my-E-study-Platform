@@ -112,13 +112,33 @@
 
                 <!-- Tabs -->
                 <div class="flex gap-6 border-b border-white/5 mb-8">
-                    <button class="pb-3 border-b-2 border-neon-cyan text-white text-sm font-medium">Lecture Notes</button>
-                    <button class="pb-3 border-b-2 border-transparent text-gray-500 hover:text-white transition-colors text-sm font-medium">Discussion</button>
+                    <button id="tab-notes" onclick="switchPlayerTab('notes')" class="pb-3 border-b-2 border-neon-cyan text-white text-sm font-medium transition-all">Lecture Notes</button>
+                    <button id="tab-discussion" onclick="switchPlayerTab('discussion')" class="pb-3 border-b-2 border-transparent text-gray-500 hover:text-white transition-colors text-sm font-medium transition-all">Discussion</button>
                 </div>
 
                 <!-- Notes Content -->
-                <div id="lesson-notes" class="prose prose-invert max-w-none prose-headings:font-display prose-a:text-neon-cyan">
-                    <p class="text-gray-500 italic">No notes loaded.</p>
+                <div id="notes-content">
+                    <div id="lesson-notes" class="prose prose-invert max-w-none prose-headings:font-display prose-a:text-neon-cyan">
+                        <p class="text-gray-500 italic">No notes loaded.</p>
+                    </div>
+                </div>
+
+                <!-- Discussion Content -->
+                <div id="discussion-content" class="hidden">
+                    <div class="space-y-6">
+                        <div class="glass-panel p-6 rounded-xl border border-white/5">
+                            <h4 class="text-white font-bold mb-4">Post a thought</h4>
+                            <div class="space-y-4">
+                                <input type="text" id="comm-name" placeholder="Your Name" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white outline-none focus:border-neon-purple transition-all">
+                                <textarea id="comm-text" rows="3" placeholder="What's on your mind regarding this lesson?" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white outline-none focus:border-neon-purple transition-all resize-none"></textarea>
+                                <button onclick="postComment()" class="bg-gradient-to-r from-neon-blue to-neon-purple text-white px-6 py-2 rounded-lg font-medium hover:scale-105 transition-all">Post Discussion</button>
+                            </div>
+                        </div>
+
+                        <div id="comments-list" class="space-y-4">
+                            <!-- Comments injected here -->
+                        </div>
+                    </div>
                 </div>
 
             </div>
@@ -162,14 +182,100 @@
     <script src="./js/player.js"></script>
     <script>
         lucide.createIcons();
-        // Override playlist rendering function for Glass Theme
-        
-        // This is a "monkey patch" since we are reusing player.js logic but want different DOM output.
-        // ideally we would refactor player.js, but since I cannot edit it easily without breaking logic, 
-        // I will rely on the CSS classes 'active-lesson' matching what player.js toggles, 
-        // OR re-implement the render logic here briefly if needed.
-        
-        // Wait for player.js to load data then re-style if needed.
+
+        let currentVideoId = null;
+
+        function switchPlayerTab(tab) {
+            const notesContent = document.getElementById('notes-content');
+            const discussionContent = document.getElementById('discussion-content');
+            const btnNotes = document.getElementById('tab-notes');
+            const btnDisc = document.getElementById('tab-discussion');
+
+            if(tab === 'notes') {
+                notesContent.classList.remove('hidden');
+                discussionContent.classList.add('hidden');
+                btnNotes.className = "pb-3 border-b-2 border-neon-cyan text-white text-sm font-medium transition-all";
+                btnDisc.className = "pb-3 border-b-2 border-transparent text-gray-500 hover:text-white transition-colors text-sm font-medium transition-all";
+            } else {
+                notesContent.classList.add('hidden');
+                discussionContent.classList.remove('hidden');
+                btnDisc.className = "pb-3 border-b-2 border-neon-cyan text-white text-sm font-medium transition-all";
+                btnNotes.className = "pb-3 border-b-2 border-transparent text-gray-500 hover:text-white transition-colors text-sm font-medium transition-all";
+                loadComments();
+            }
+        }
+
+        async function loadComments() {
+            if(!currentVideoId) return;
+            const list = document.getElementById('comments-list');
+            list.innerHTML = `<div class="text-center py-8 text-gray-500 animate-pulse">Loading discussion...</div>`;
+            
+            try {
+                const res = await fetch(`${CONFIG.API_BASE_URL}/comments/${currentVideoId}`);
+                const comments = await res.json();
+                
+                list.innerHTML = comments.length ? '' : `<div class="text-center py-12 text-gray-600">No discussions yet. Be the first to start!</div>`;
+                
+                comments.forEach(c => {
+                    const div = document.createElement('div');
+                    div.className = "glass-panel p-4 rounded-xl border border-white/5 hover:bg-white/5 transition-colors";
+                    div.innerHTML = `
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-neon-cyan font-bold text-sm">${c.userName}</span>
+                            <span class="text-[10px] text-gray-600">${new Date(c.createdAt).toLocaleDateString()}</span>
+                        </div>
+                        <p class="text-gray-300 text-sm leading-relaxed">${c.text}</p>
+                    `;
+                    list.appendChild(div);
+                });
+            } catch(e) { console.error(e); }
+        }
+
+        async function postComment() {
+            const nameEl = document.getElementById('comm-name');
+            const textEl = document.getElementById('comm-text');
+            const name = nameEl.value.trim();
+            const text = textEl.value.trim();
+            const urlParams = new URLSearchParams(window.location.search);
+            const courseId = urlParams.get('id');
+
+            if(!name || !text || !currentVideoId) return;
+
+            try {
+                const res = await fetch(`${CONFIG.API_BASE_URL}/comments`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        courseId,
+                        videoId: currentVideoId,
+                        userName: name,
+                        text: text
+                    })
+                });
+
+                if(res.ok) {
+                    textEl.value = '';
+                    loadComments();
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        // Catch video changes from player.js
+        const originalInitPlayer = window.initPlayer;
+        // Wait for player.js to finish setting currentVideoId
+        const checkVideoTarget = setInterval(() => {
+            const player = document.getElementById('youtube-player');
+            if(player && player.src) {
+                const url = new URL(player.src);
+                const vId = url.pathname.split('/').pop();
+                if(vId && vId !== currentVideoId) {
+                    currentVideoId = vId;
+                    if(!document.getElementById('discussion-content').classList.contains('hidden')) {
+                        loadComments();
+                    }
+                }
+            }
+        }, 1000);
     </script>
 </body>
 </html>

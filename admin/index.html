@@ -80,6 +80,9 @@
             <button onclick="switchTab('requests')" class="nav-link w-full" id="btn-requests">
                 <i data-lucide="message-square" class="w-5 h-5"></i> Requests
             </button>
+            <button onclick="switchTab('discussions')" class="nav-link w-full" id="btn-discussions">
+                <i data-lucide="message-circle" class="w-5 h-5"></i> Discussions
+            </button>
             <button onclick="openBroadcastModal()" class="nav-link w-full text-neon-red/80 hover:text-neon-red">
                 <i data-lucide="radio" class="w-5 h-5"></i> Broadcast
             </button>
@@ -210,7 +213,17 @@
                     </table>
                 </div>
             </div>
-            <!-- VIEW: REQUESTS -->
+            <!-- VIEW: DISCUSSIONS -->
+            <div id="view-discussions" class="hidden space-y-6">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/5">
+                    <h3 class="text-white font-bold text-lg">Platform Discussions</h3>
+                    <p class="text-xs text-gray-500">Global view of all student interactions</p>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4" id="admin-comments-list">
+                    <!-- Injected -->
+                </div>
+            </div>
             <div id="view-requests" class="hidden space-y-6">
                 <div class="flex flex-col md:flex-row justify-between items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/5">
                     <h3 class="text-white font-bold text-lg">Student Requests</h3>
@@ -355,6 +368,10 @@
             if(viewId === 'requests') {
                 title = 'Note Requests';
                 loadAdminRequests();
+            }
+            if(viewId === 'discussions') {
+                title = 'Internal Discussions';
+                loadAdminDiscussions();
             }
             document.getElementById('page-title').innerText = title;
         }
@@ -546,6 +563,58 @@
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 loadAdminRequests();
+            }
+        }
+
+        async function loadAdminDiscussions() {
+            try {
+                // Fetching all comments requires a new route or query, assuming we can get them all via /api/comments/all
+                // Let's create a route for 'all' in the backend later, or just pull based on course.
+                // For now, let's fetch all 
+                const res = await fetch(`${CONFIG.API_BASE_URL}/comments/all`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
+                });
+                const comments = await res.json();
+                const container = document.getElementById('admin-comments-list');
+                container.innerHTML = '';
+
+                comments.forEach(c => {
+                    const div = document.createElement('div');
+                    div.className = "glass-panel p-6 rounded-xl border border-white/5 hover:bg-white/10 transition-all";
+                    div.innerHTML = `
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-neon-purple/20 flex items-center justify-center text-neon-purple font-bold">
+                                    ${c.userName[0]}
+                                </div>
+                                <div>
+                                    <h4 class="text-white font-bold">${c.userName}</h4>
+                                    <p class="text-[10px] text-gray-500">${new Date(c.createdAt).toLocaleString()}</p>
+                                </div>
+                            </div>
+                            <button onclick="deleteAdminComment('${c._id || c.id}')" class="text-gray-500 hover:text-neon-red transition-colors p-2">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <p class="text-gray-400 text-sm italic mb-3">Topic: ${c.videoId}</p>
+                        <p class="text-gray-200">${c.text}</p>
+                    `;
+                    container.appendChild(div);
+                });
+                lucide.createIcons();
+            } catch(e) {}
+        }
+
+        async function deleteAdminComment(id) {
+            if(confirm("Delete this discussion post?")) {
+                let token = localStorage.getItem('adminToken') || '';
+                if(token.includes('Bearer ')) token = token.replace('Bearer ', '').trim();
+                
+                await fetch(`${CONFIG.API_BASE_URL}/comments/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                loadAdminDiscussions();
             }
         }
 
